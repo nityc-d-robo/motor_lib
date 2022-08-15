@@ -1,12 +1,12 @@
 #include <md_lib.hpp>
 
-#include <serial_connect.hpp>
+#include <serial_connect/serial_connect.hpp>
 
 Md::Md(SerialConnect& serial_){
 	serial = &serial_;
 }
 
-void md::sendPwm(uint16_t address_, bool phase_, uint16_t power_){
+void Md::sendPwm(uint16_t address_, bool phase_, uint16_t power_){
 	uint8_t send_buf[6] = {0u};
 
 	send_buf[0] = (uint8_t)address_;
@@ -17,7 +17,7 @@ void md::sendPwm(uint16_t address_, bool phase_, uint16_t power_){
 	serial->writeSerial(send_buf, 6);
 }
 
-void md::sendSpeed(uint16_t address_, bool phase_, uint16_t speed_, uint16_t end_){
+void Md::sendSpeed(uint16_t address_, bool phase_, uint16_t speed_, uint16_t end_){
 	uint8_t send_buf[6] = {0u};
 
 	send_buf[0] = (uint8_t)address_;
@@ -30,7 +30,7 @@ void md::sendSpeed(uint16_t address_, bool phase_, uint16_t speed_, uint16_t end
 	serial->writeSerial(send_buf, 6);
 }
 
-void md::sendAngle(uint16_t address_, bool phase_, uint16_t speed_, uint16_t angle_){
+void Md::sendAngle(uint16_t address_, bool phase_, uint16_t speed_, uint16_t angle_){
 	uint8_t send_buf[6] = {0u};
 
 	send_buf[0] = (uint8_t)address_;
@@ -43,7 +43,7 @@ void md::sendAngle(uint16_t address_, bool phase_, uint16_t speed_, uint16_t ang
 	serial->writeSerial(send_buf, 6);
 }
 
-void md::sendLimSw(uint16_t address_, bool phase_, uint16_t speed_, bool port_){
+void Md::sendLimSw(uint16_t address_, bool phase_, uint16_t speed_, bool port_){
 	uint8_t send_buf[6] = {0u};
 
 	send_buf[0] = (uint8_t)address_;
