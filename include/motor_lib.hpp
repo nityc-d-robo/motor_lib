@@ -2,7 +2,7 @@
 
 #include <md_lib.hpp>
 
-#include <serial_connect.hpp>
+#include <serial_connect/serial_connect.hpp>
 
 SerialConnect serial;
 
