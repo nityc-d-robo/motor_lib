@@ -8,8 +8,10 @@
 
 #include <serial_connect/serial_connect.hpp>
 
-SerialConnect serial;
+namespace motor{
+	SerialConnect serial;
 
-Md md(serial);
+	Md md(serial);
 
-void stopAll(void);
+	void stopAll(void);
+};
