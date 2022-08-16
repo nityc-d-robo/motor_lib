@@ -5,16 +5,18 @@ set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
 find_package(serial_connect REQUIRED)
 
+add_subdirectory(lib/md_lib)
+
+add_definitions(-DMOTOR_INSTALL)
+
 include_directories(
 	include
+	lib/md_lib/include
 )
 
 link_directories(
 	include
-)
-
-add_library(md_lib STATIC
-	src/md_lib.cpp
+	lib/md_lib/include
 )
 
 add_library(motor_lib SHARED
@@ -25,7 +27,7 @@ set_target_properties(motor_lib PROPERTIES
 	PUBLIC_HEADER include/motor_lib.hpp
 )
 
-target_link_libraries(motor_lib
+target_link_libraries(motor_lib PUBLIC
 	md_lib
 )
 
@@ -36,29 +38,13 @@ install(TARGETS motor_lib
 	PUBLIC_HEADER DESTINATION include/motor_lib
 )
 
-install(TARGETS md_lib
-	EXPORT md_lib-export
-	LIBRARY DESTINATION lib
-	INCLUDES DESTINATION include
-	PUBLIC_HEADER DESTINATION include/motor_lib
-)
-
-install(EXPORT motor_lib-export
+install(
+	EXPORT motor_lib-export
+	DESTINATION cmake
+	NAMESPACE motor_lib::
 	FILE motor_lib-config.cmake
-	DESTINATION share/cmake/motor_lib/
-	EXPORT_LINK_INTERFACE_LIBRARIES
-)
-
-install(EXPORT md_lib-export
-	FILE md_lib-config.cmake
-	DESTINATION share/cmake/motor_lib/
-	EXPORT_LINK_INTERFACE_LIBRARIES
 )
 
 export(EXPORT motor_lib-export
 	FILE motor_lib-export.cmake
-)
-
-export(EXPORT md_lib-export
-	FILE md_lib-export.cmake
 )
