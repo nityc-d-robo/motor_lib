@@ -9,7 +9,7 @@
 #include <serial_connect/serial_connect.hpp>
 
 namespace motor{
-	SerialConnect serial;
+	SerialConnect serial(false);
 
 	Md md(serial);
 
