@@ -5,7 +5,7 @@
 class Sr{
 	public:
 		Sr(SerialConnect& serial_);
-		void sendColors(uint8_t red_, uint8_t green_, uint8_t blue_);
+		void sendColors(uint8_t red_, uint8_t green_, uint8_t blue_, float freq_);
 	private:
 		SerialConnect* serial;
 };
