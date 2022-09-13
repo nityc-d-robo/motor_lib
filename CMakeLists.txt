@@ -6,6 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 find_package(serial_connect REQUIRED)
 
 add_subdirectory(lib/md_lib)
+add_subdirectory(lib/sd_lib)
 add_subdirectory(lib/sr_lib)
 
 add_definitions(-DMOTOR_INSTALL)
@@ -13,12 +14,14 @@ add_definitions(-DMOTOR_INSTALL)
 include_directories(
 	include
 	lib/md_lib/include
+	lib/sd_lib/include
 	lib/sr_lib/include
 )
 
 link_directories(
 	include
 	lib/md_lib/include
+	lib/sd_lib/include
 	lib/sr_lib/include
 )
 
@@ -32,6 +35,7 @@ set_target_properties(motor_lib PROPERTIES
 
 target_link_libraries(motor_lib PUBLIC
 	md_lib
+	sd_lib
 	sr_lib
 )
 
