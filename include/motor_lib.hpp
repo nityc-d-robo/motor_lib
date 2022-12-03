@@ -10,14 +10,16 @@
 #include "sr_lib/sr_lib.hpp"
 #endif
 
-#include <serial_connect/serial_connect.hpp>
+#include <usb_connect/usb_connect.hpp>
 
 namespace motor{
-	SerialConnect serial(false);
+	UsbConfig usb_config;
 
-	Md md(serial);
-	Sd sd(serial);
-	Sr sr(serial);
+	SerialConnect usb;
+
+	Md md(usb);
+	Sd sd(usb);
+	Sr sr(usb);
 
 	void stopAll(void);
 };

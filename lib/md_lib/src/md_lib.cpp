@@ -1,6 +1,6 @@
 #include <md_lib.hpp>
 
-#include <serial_connect/serial_connect.hpp>
+#include <usb_connect/usb_connect.hpp>
 
 Md::Md(SerialConnect& serial_){
 	serial = &serial_;
