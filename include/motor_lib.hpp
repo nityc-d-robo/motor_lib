@@ -12,14 +12,16 @@
 
 #include <usb_connect/usb_connect.hpp>
 
-namespace motor{
+namespace MotorLib{
 	UsbConfig usb_config;
 
-	SerialConnect usb;
+	UsbConnect usb;
 
 	Md md(usb);
 	Sd sd(usb);
 	Sr sr(usb);
 
 	void stopAll(void);
+	int checkFinish(uint8_t address_, uint8_t mode_, uint32_t usb_timeout_);
+	int checkFinish(uint8_t address_, uint8_t semi_id_, uint8_t mode_, uint32_t usb_timeout_);
 };
