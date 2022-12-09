@@ -211,25 +211,26 @@ int MotorLib::Md::sendStatus(uint8_t address_, StatusData& md_status_, uint32_t 
 			status_tmp.finish_status = read_buf[2];
 
 			if((status_tmp.address & 0xf0) == IdType::SR){
-				status_tmp.datas.finish.mode = read_buf[3];
-				status_tmp.datas.finish.color.red = read_buf[4];
-				status_tmp.datas.finish.color.green = read_buf[5];
-				status_tmp.datas.finish.color.blue = read_buf[6];
-				status_tmp.datas.finish.freq = float(read_buf[7]) / 4.0f;
+				status_tmp.datas.sr_data.firmware = float(read_buf[3]) / 10.0f;
+				status_tmp.datas.sr_data.voltage = bool(read_buf[4] & 0x01);
+				status_tmp.datas.sr_data.freq = float((read_buf[4] >> 1) & 0x7f) / 4.0f;
+				status_tmp.datas.sr_data.color.red = read_buf[5];
+				status_tmp.datas.sr_data.color.green = read_buf[6];
+				status_tmp.datas.sr_data.color.blue = read_buf[7];
 			}else if(status_tmp.finish_status == FinishStatus::STATUS){
-				status_tmp.datas.status.firmware = float(read_buf[3]) / 100.0f;
+				status_tmp.datas.status.firmware = float(read_buf[3]) / 10.0f;
 				status_tmp.datas.status.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
 				status_tmp.datas.status.lim_sw1 = bool((read_buf[7] >> 1) & 0x01);
 				status_tmp.datas.status.lim_sw2 = bool(read_buf[7] & 0x01);
 			}else{
-				status_tmp.datas.finish.mode = read_buf[3];
+				status_tmp.datas.mode = read_buf[3];
 			}
 
 			finish_queue.push_back(status_tmp);
 		}else{
 			md_status_.address = read_buf[0];
 			md_status_.semi_id = 0u;
-			md_status_.datas.status.firmware = float(read_buf[3]) / 100.0f;
+			md_status_.datas.status.firmware = float(read_buf[3]) / 10.0f;
 			md_status_.datas.status.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
 			md_status_.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
 			md_status_.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);
@@ -279,25 +280,26 @@ int MotorLib::Md::sendStatus(uint8_t address_, uint8_t semi_id_, StatusData& md_
 			status_tmp.finish_status = read_buf[2];
 
 			if((status_tmp.address & 0xf0) == IdType::SR){
-				status_tmp.datas.finish.mode = read_buf[3];
-				status_tmp.datas.finish.color.red = read_buf[4];
-				status_tmp.datas.finish.color.green = read_buf[5];
-				status_tmp.datas.finish.color.blue = read_buf[6];
-				status_tmp.datas.finish.freq = float(raed_buf[7]) / 4.0f;
+				status_tmp.datas.sr_data.firmware = float(read_buf[3]) / 10.0f;
+				status_tmp.datas.sr_data.voltage = bool(read_buf[4] & 0x01);
+				status_tmp.datas.sr_data.freq = float((read_buf[4] >> 1) & 0x7f) / 4.0f;
+				status_tmp.datas.sr_data.color.red = read_buf[5];
+				status_tmp.datas.sr_data.color.green = read_buf[6];
+				status_tmp.datas.sr_data.color.blue = read_buf[7];
 			}else if(status_tmp.finish_status == FinishStatus::STATUS){
-				status_tmp.datas.status.firmware = float(read_buf[3]) / 100.0f;
+				status_tmp.datas.status.firmware = float(read_buf[3]) / 10.0f;
 				statis_tmp.datas.status.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
 				status_tmp.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
 				status_tmp.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);
 			}else{
-				status_tmp.datas.finish.mode = read_buf[3];
+				status_tmp.datas.mode = read_buf[3];
 			}
 
 			finish_queue.push_back(status_tmp);
 		}else{
 			md_status_.address = read_buf[0];
 			md_status_.semi_id = read_buf[1];
-			md_status_.firmware = float(read_buf[3]) / 100.0f;
+			md_status_.firmware = float(read_buf[3]) / 10.0f;
 			md_status_.datas.status.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
 			md_status_.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
 			md_status_.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);

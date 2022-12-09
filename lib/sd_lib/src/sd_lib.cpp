@@ -111,17 +111,18 @@ int MotorLib::Sd::sendStatus(uint8_t address_, StatusData& sd_status_, uint32_t 
 			status_tmp.finish_status = read_buf[2];
 
 			if((status_tmp.address & 0xf0) == IdType::SR){
-				status_tmp.datas.finish.mode = read_buf[3];
-				status_tmp.datas.finish.color.red = read_buf[4];
-				status_tmp.datas.finish.color.green = read_buf[5];
-				status_tmp.datas.finish.color.blue = read_buf[6];
-				status_tmp.datas.finish.freq = float(read_buf[7]) / 4.0f;
+				status_tmp.datas.sr_data.firmware = float(read_buf[3]) / 10.0f;
+				status_tmp.datas.sr_data.voltage = bool(read_buf[4] & 0x01);
+				status_tmp.datas.sr_data.freq = float((read_buf[4] >> 1) & 0x7f) / 4.0f;
+				status_tmp.datas.sr_data.color.red = read_buf[5];
+				status_tmp.datas.sr_data.color.green = read_buf[6];
+				status_tmp.datas.sr_data.color.blue = read_buf[7];
 			}else if(status_tmp.finish_status == FinishStatus::STATUS){
 				status_tmp.datas.status.firmware = float(read_buf[3]) / 100.0f;
 				status_tmp.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
 				status_tmp.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);
 			}else{
-				status_tmp.datas.status.mode = read_buf[3];
+				status_tmp.datas.mode = read_buf[3];
 			}
 
 			finish_queue.push_back(status_tmp);
@@ -178,17 +179,18 @@ int MotorLib::Sd::sendStatus(uint8_t address_, uint8_t semi_id_, StatusData& sd_
 			status_tmp.finish_status = read_buf[2];
 
 			if((status_tmp.address & 0xf0) == IdType::SR){
-				status_tmp.datas.finish.mode = read_buf[3];
-				status_tmp.datas.finish.color.red = read_buf[4];
-				status_tmp.datas.finish.color.green = read_buf[5];
-				status_tmp.datas.finish.color.blue = read_buf[6];
-				status_tmp.datas.finish.freq = float(read_buf[7]) / 4.0f;
+				status_tmp.datas.sr_data.firmware = float(read_buf[3]) / 10.0f;
+				status_tmp.datas.sr_data.voltage = bool(read_buf[4] & 0x01);
+				status_tmp.datas.sr_data.freq = float((read_buf[4] >> 1) & 0x7f) / 4.0f;
+				status_tmp.datas.sr_data.color.red = read_buf[5];
+				status_tmp.datas.sr_data.color.green = read_buf[6];
+				status_tmp.datas.sr_data.color.blue = read_buf[7];
 			}else if(status_tmp.finish_status == FinishStatus::STATUS){
 				status_tmp.datas.status.firmware = float(read_buf[3]) / 100.0f;
 				status_tmp.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
 				status_tmp.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);
 			}else{
-				status_tmp.datas.finish.mode = read_buf[3];
+				status_tmp.datas.mode = read_buf[3];
 			}
 
 			finish_queue.push_back(status_tmp);
