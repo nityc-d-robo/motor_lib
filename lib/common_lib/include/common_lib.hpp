@@ -25,15 +25,17 @@ namespace MotorLib{
 		uint8_t blue;
 	}Color;
 
-	typedef struct FinishStruct{
-		uint8_t mode;
+	typedef struct SrStruct{
+		bool voltage;
+		float firmware;
 		Color color;
 		float freq;
 	}
 
 	typedef union DataPack{
 		StatusStruct status;
-		FinishStruct finish;
+		SrStruct sr_data;
+		uint8_t mode;
 	}
 
 	typedef struct StatusData{
