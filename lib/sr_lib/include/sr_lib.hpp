@@ -6,6 +6,17 @@
 #include <string>
 
 namespace MotorLib{
+	typedef struct Color{
+		uint8_t red, green, blue;
+	}Color;
+
+	typedef struct SrStatus{
+		float firmware;
+		bool voltage;
+		Color color;
+		float freq;
+	}SrStatus;
+
 	class Sr{
 		public:
 			typedef struct Mode{

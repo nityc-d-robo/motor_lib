@@ -3,6 +3,12 @@
 #include <usb_connect/usb_connect.hpp>
 
 namespace MotorLib{
+	typedef struct MdStatus{
+		float firmware;
+		int32_t angle;
+		bool lim_sw0, lim_sw1;
+	}MdStatus;
+
 	class Md{
 		public:
 			typedef enum LimPort{
@@ -24,8 +30,8 @@ namespace MotorLib{
 			int sendLimSw(uint8_t address_, uint8_t semi_id_, bool phase_, uint16_t speed_, LimPort port_, uint16_t timeout_, uint32_t usb_timeout_);
 			int sendInit(uint8_t address_, bool angle_reset_, uint16_t max_rpm_, uint16_t max_torque_, uint16_t gear_ratio_, uint32_t usb_timeout_);
 			int sendInit(uint8_t address_, uint8_t semi_id_, bool angle_reset_, uint16_t max_rpm_, uint16_t max_torque_, uint16_t gear_ratio_, uint32_t usb_timeout_);
-			int sendStatus(uint8_t address_, StatusData& md_status_, uint32_t usb_timeout_);
-			int sendStatus(uint8_t address_, uint8_t semi_id_, StatusData& md_status_, uint32_t usb_timeout_);
+			int sendStatus(uint8_t address_, MdStatus& md_status_, uint32_t usb_timeout_);
+			int sendStatus(uint8_t address_, uint8_t semi_id_, MdStatus& md_status_, uint32_t usb_timeout_);
 		private:
 			UsbConnect* usb;
 	};

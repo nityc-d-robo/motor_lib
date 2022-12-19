@@ -57,7 +57,7 @@ int MotorLib::checkFinish(uint8_t address_, uint8_t semi_id_, uint8_t mode_, uin
 		
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
-				if(*itr.finish_status != FinishStatus::STATUS and *itr.address == address_ and *itr.semi_id == (semi_id_ | IdType::SM)){
+				if(*itr[2] != FinishStatus::STATUS and *itr[0] == address_ and *itr[1] == (semi_id_ | IdType::SM)){
 					if(*itr.datas.mode == mode_){
 						FinishStatus status_tmp = *itr[2];
 						finish_queue.erase(itr);

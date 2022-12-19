@@ -4,6 +4,8 @@
 #include <common_lib.hpp>
 
 #include <vector>
+#include <array>
+#include <cstring>
 
 MotorLib::Sr::Sr(SerialConnect& serial_){
 	serial = &serial_;
@@ -67,7 +69,7 @@ int MotorLib::Sr::sendColor(std::string color_code_, float freq_, uint32_t usb_t
 	return sendColors(color, 1.0f, freq_, usb_timeout_);
 }
 
-int MotorLib::Sr::sendStatus(StatusData& sr_status_, uint32_t usb_timeout_){
+int MotorLib::Sr::sendStatus(SrStatus& sr_status_, uint32_t usb_timeout_){
 	uint8_t send_buf[TX_SIZE] = {0u};
 	uint8_t read_buf[RX_SIZE] = {0u};
 	int return_status = UsbStatus::USB_OTHER_ERROR;
@@ -88,7 +90,12 @@ int MotorLib::Sr::sendStatus(StatusData& sr_status_, uint32_t usb_timeout_){
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
 				if(*itr.address == IdType::SR and *itr.finish_status == FinishStatus::STATUS){
-					sr_status_ = *itr;
+					sr_status_.firmware = float(*itr[3]) / 10.0f;
+					sr_status_.voltage = bool(*itr[4] & 0x01);
+					sr_status_.freq = float((*itr[4] >> 1) & 0x7f);
+					sr_status_.color.red = *itr[5];
+					sr_status_.color.green = *itr[6];
+					sr_status_.color.blue = *itr[7];
 
 					finish_queue.erase(itr);
 
@@ -100,32 +107,18 @@ int MotorLib::Sr::sendStatus(StatusData& sr_status_, uint32_t usb_timeout_){
 		}
 
 		if(read_buf[0] != IdType::SR or read_buf[3] != FinishStatus::STATUS){
-			StatusData status_tmp;
+			std::array<uint8_t, RX_SIZE> status_tmp;
 
-			status_tmp.address = read_buf[0];
-			status_tmp.semi_id = read_buf[1];
-			status_tmp.finish_status = read_buf[2];
-
-			if(status_tmp.finish_status == FinishStatus::STATUS){
-				status_tmp.datas.status.firmware = float(read_buf[3]) / 10.0f;
-				status_tmp.datas.status.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
-				status_tmp.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
-				status_tmp.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);
-			}else{
-				status_tmp.datas.mode = read_buf[3];
-			}
+			memcpy(&status_tmp, read_buf, RX_SIZe);
 
 			finish_queue.push_back(status_tmp);
 		}else{
-			sr_status_.address = read_buf[0];
-			sr_status_.semi_id = 0u;
-			sr_status_.finish_status = read_buf[2];
-			sr_status_.datas.sr_data.firmware = float(read_buf[3]) / 10.0f;
-			sr_status_.datas.sr_data.voltage = bool(read_buf[4] & 0x01);
-			sr_status_.datas.sr_data.freq = float((read_buf[4] >> 1) & 0x7f) / 4.0f
-			sr_status_.datas.sr_data.color.red = read_buf[5];
-			sr_status_.datas.sr_data.color.green = read_buf[6];
-			sr_status_.datas.sr_data.color.blue = read_buf[7];
+			sr_status_.firmware = float(read_buf[3]) / 10.0f;
+			sr_status_.voltage = bool(read_buf[4] & 0x01);
+			sr_status_.freq = float((read_buf[4] >> 1) & 0x7f) / 4.0f
+			sr_status_.color.red = read_buf[5];
+			sr_status_.color.green = read_buf[6];
+			sr_status_.color.blue = read_buf[7];
 
 			return return_status;
 		}

@@ -4,6 +4,8 @@
 #include <common_lib.hpp>
 
 #include <vector>
+#include <array>
+#include <cstring>
 
 MotorLib::Md::Md(UsbConnect& usb_){
 	usb = &usb_;
@@ -191,8 +193,11 @@ int MotorLib::Md::sendStatus(uint8_t address_, StatusData& md_status_, uint32_t 
 
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
-				if(*itr.finish_status == FinishStatus::STATUS and *itr.adderss == address_ and *itr.semi_id = 0u){
-					md_status_ = *itr;
+				if(*itr[2] == FinishStatus::STATUS and *itr[0] == address_ and *itr[1] = 0u){
+					md_status_.firmware = float(*itr[3]) / 10.0f;
+					md_status_.angle = (int32_t)((*itr[5] << 8) | *itr[6]) * (*itr[4] == 0) ? 1 : -1;
+					md_status_.lim_sw0 = bool((*itr[7] >> 1) & 0x01);
+					md_status_.lim_sw1 = bool(*itr[7] & 0x01);
 
 					finish_queue.erase(itr);
 
@@ -204,43 +209,23 @@ int MotorLib::Md::sendStatus(uint8_t address_, StatusData& md_status_, uint32_t 
 		}
 
 		if(read_buf[0] != address_ or read_buf[1] != 0u or read_buf[2] != FinishStatus::STATUS){
-			StatusData status_tmp;
+			std::array<uint8_t, RX_SIZE> status_tmp;
 
-			status_tmp.address = read_buf[0];
-			status_tmp.semi_id = read_buf[1];
-			status_tmp.finish_status = read_buf[2];
-
-			if((status_tmp.address & 0xf0) == IdType::SR){
-				status_tmp.datas.sr_data.firmware = float(read_buf[3]) / 10.0f;
-				status_tmp.datas.sr_data.voltage = bool(read_buf[4] & 0x01);
-				status_tmp.datas.sr_data.freq = float((read_buf[4] >> 1) & 0x7f) / 4.0f;
-				status_tmp.datas.sr_data.color.red = read_buf[5];
-				status_tmp.datas.sr_data.color.green = read_buf[6];
-				status_tmp.datas.sr_data.color.blue = read_buf[7];
-			}else if(status_tmp.finish_status == FinishStatus::STATUS){
-				status_tmp.datas.status.firmware = float(read_buf[3]) / 10.0f;
-				status_tmp.datas.status.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
-				status_tmp.datas.status.lim_sw1 = bool((read_buf[7] >> 1) & 0x01);
-				status_tmp.datas.status.lim_sw2 = bool(read_buf[7] & 0x01);
-			}else{
-				status_tmp.datas.mode = read_buf[3];
-			}
+			memcpy(&status_tmp, rx_buf, RX_SIZE);
 
 			finish_queue.push_back(status_tmp);
 		}else{
-			md_status_.address = read_buf[0];
-			md_status_.semi_id = 0u;
-			md_status_.datas.status.firmware = float(read_buf[3]) / 10.0f;
-			md_status_.datas.status.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
-			md_status_.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
-			md_status_.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);
+			md_status_.firmware = float(read_buf[3]) / 10.0f;
+			md_status_.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
+			md_status_.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
+			md_status_.lim_sw1 = bool(read_buf[7] & 0x01);
 
 			return return_status;
 		}
 	}
 }
 
-int MotorLib::Md::sendStatus(uint8_t address_, uint8_t semi_id_, StatusData& md_status_, uint32_t usb_timeout_){
+int MotorLib::Md::sendStatus(uint8_t address_, uint8_t semi_id_, MdStatus& md_status_, uint32_t usb_timeout_){
 	uint8_t send_buf[TX_SIZE] = {0u};
 	uint8_t read_buf[RX_SIZE] = {0u};
 	int return_status = UsbStatus::USB_OTHER_ERROR;
@@ -260,8 +245,11 @@ int MotorLib::Md::sendStatus(uint8_t address_, uint8_t semi_id_, StatusData& md_
 
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
-				if(*itr.finish_status == FinishStatus::STATUS and *itr.adderss == address_ and *itr.semi_id == (semi_id_ | IdType::SM)){
-					md_status_ = *itr;
+				if(*itr[2] == FinishStatus::STATUS and *itr[0] == address_ and *itr[1] == (semi_id_ | IdType::SM)){
+					md_status_.firmware = float(*itr[3]) / 10.0f;
+					md_status_.angle = (int32_t)((*itr[5] << 8) | *itr[6]) * (*itr[4] & 0x01 == 0) ? 1 : -1;
+					md_status_.lim_sw0 = bool((*itr[7] >> 1) & 0x01);
+					md_status_.lim_sw1 = bool(*itr[7] & 0x01);
 
 					finish_queue.erase(itr);
 
@@ -273,36 +261,16 @@ int MotorLib::Md::sendStatus(uint8_t address_, uint8_t semi_id_, StatusData& md_
 		}
 
 		if(read_buf[0] != address_ or read_buf[1] != (semi_id_ | IdType::SM) or read_buf[2] != FinishStatus::STATUS){
-			StatusData status_tmp;
+			std::array<uin8_t, RX_SIZE> data_tmp;
 
-			status_tmp.address = read_buf[0];
-			status_tmp.semi_id = read_buf[1];
-			status_tmp.finish_status = read_buf[2];
+			memcpy(&data_tmp, read_buf, RX_SIZE);
 
-			if((status_tmp.address & 0xf0) == IdType::SR){
-				status_tmp.datas.sr_data.firmware = float(read_buf[3]) / 10.0f;
-				status_tmp.datas.sr_data.voltage = bool(read_buf[4] & 0x01);
-				status_tmp.datas.sr_data.freq = float((read_buf[4] >> 1) & 0x7f) / 4.0f;
-				status_tmp.datas.sr_data.color.red = read_buf[5];
-				status_tmp.datas.sr_data.color.green = read_buf[6];
-				status_tmp.datas.sr_data.color.blue = read_buf[7];
-			}else if(status_tmp.finish_status == FinishStatus::STATUS){
-				status_tmp.datas.status.firmware = float(read_buf[3]) / 10.0f;
-				statis_tmp.datas.status.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
-				status_tmp.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
-				status_tmp.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);
-			}else{
-				status_tmp.datas.mode = read_buf[3];
-			}
-
-			finish_queue.push_back(status_tmp);
+			finish_queue.push_back(data_tmp);
 		}else{
-			md_status_.address = read_buf[0];
-			md_status_.semi_id = read_buf[1];
 			md_status_.firmware = float(read_buf[3]) / 10.0f;
-			md_status_.datas.status.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
-			md_status_.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
-			md_status_.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);
+			md_status_.angle = (int32_t)(read_buf[5] << 8 | read_buf[6]) * ((read_buf[4] == 0u) ? 1 : -1);
+			md_status_.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
+			md_status_.lim_sw1 = bool(read_buf[7] & 0x01);
 
 			return return_status;
 		}
