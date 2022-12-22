@@ -25,7 +25,7 @@ int MotorLib::checkFinish(uint8_t address_, uint8_t mode_, uint32_t usb_timeout_
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
 				if((*itr)[Header::MODE] != FinishStatus::STATUS and (*itr)[Header::ADDRESS] == address_ and (*itr)[Header::SEMI_ID] == 0u){
-					if((*itr)[Header::MODE] == mode_){
+					if((*itr)[3] == mode_){
 						int status_tmp = (*itr)[Header::MODE];
 						finish_queue.erase(itr);
 
@@ -37,7 +37,7 @@ int MotorLib::checkFinish(uint8_t address_, uint8_t mode_, uint32_t usb_timeout_
 			return return_status;
 		}
 
-		if(read_buf[Header::ADDRESS] != address_ or read_buf[Header::SEMI_ID] != 0u or read_buf[Header::MODE] == FinishStatus::STATUS){
+		if(read_buf[Header::ADDRESS] != address_ or read_buf[Header::SEMI_ID] != 0u or read_buf[Header::MODE] == FinishStatus::STATUS or read_buf[3] != mode_){
 			std::array<uint8_t, RX_SIZE> data_tmp;
 
 			memcpy(&data_tmp, read_buf, RX_SIZE);
@@ -59,7 +59,7 @@ int MotorLib::checkFinish(uint8_t address_, uint8_t semi_id_, uint8_t mode_, uin
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
 				if((*itr)[Header::MODE] != FinishStatus::STATUS and (*itr)[Header::ADDRESS] == address_ and (*itr)[Header::SEMI_ID] == (semi_id_ | IdType::SM)){
-					if((*itr)[Header::MODE] == mode_){
+					if((*itr)[3] == mode_){
 						int status_tmp = (*itr)[Header::MODE];
 						finish_queue.erase(itr);
 
@@ -71,7 +71,7 @@ int MotorLib::checkFinish(uint8_t address_, uint8_t semi_id_, uint8_t mode_, uin
 			return return_status;
 		}
 
-		if(read_buf[Header::ADDRESS] != address_ or read_buf[Header::SEMI_ID] != (semi_id_ | IdType::SM) or read_buf[Header::MODE] == FinishStatus::STATUS){
+		if(read_buf[Header::ADDRESS] != address_ or read_buf[Header::SEMI_ID] != (semi_id_ | IdType::SM) or read_buf[Header::MODE] == FinishStatus::STATUS or read_buf[3] != mode_){
 			std::array<uint8_t, RX_SIZE> data_tmp;
 
 			memcpy(&data_tmp, read_buf, RX_SIZE);
