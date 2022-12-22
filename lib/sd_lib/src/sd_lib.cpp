@@ -39,13 +39,13 @@ int MotorLib::Sd::sendPowers(uint8_t address_, uint8_t semi_id_, uint16_t power1
 	return usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
 }
 
-int MotorLib::Sd::sendLimSw(uint8_t address_, OutPort out_port_, LimPort lim_port_, uint16_t first_power_, uint16_t next_power_, uint16_t timeout_, uint32_t usb_timeout_){
+int MotorLib::Sd::sendLimSw(uint8_t address_, Port out_port_, Port lim_port_, uint16_t first_power_, uint16_t next_power_, uint16_t timeout_, uint32_t usb_timeout_){
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = address_ | IdType::SD;
 	send_buf[1] = 0u;
 	send_buf[2] = (uint8_t)Mode::LIM_SW;
-	send_buf[3] = (uint8_t)(out_port << 1 | lim_port_);
+	send_buf[3] = (uint8_t)(out_port_ << 1 | lim_port_);
 	send_buf[4] = (uint8_t)((first_power_ >> 8) & 0xff);
 	send_buf[5] = (uint8_t)(first_power_ & 0xff);
 	send_buf[6] = (uint8_t)((next_power_ >> 8) & 0xff);
@@ -56,13 +56,13 @@ int MotorLib::Sd::sendLimSw(uint8_t address_, OutPort out_port_, LimPort lim_por
 	return usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
 }
 
-int MotorLib::Sd::sendLimSw(uint8_t address_, uint8_t semi_id_, OutPort out_port_, LimPort lim_port_, uint16_t first_power_, uint16_t next_power_, uint16_t timeout_, uint32_t usb_timeout_){
+int MotorLib::Sd::sendLimSw(uint8_t address_, uint8_t semi_id_, Port out_port_, Port lim_port_, uint16_t first_power_, uint16_t next_power_, uint16_t timeout_, uint32_t usb_timeout_){
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = address_ | IdType::SD;
 	send_buf[1] = semi_id_ | IdType::SM;
 	send_buf[2] = (uint8_t)Mode::LIM_SW;
-	send_buf[3] = (uint8_t)(out_port << 1 | lim_port_);
+	send_buf[3] = (uint8_t)(out_port_ << 1 | lim_port_);
 	send_buf[4] = (uint8_t)((first_power_ >> 8) & 0xff);
 	send_buf[5] = (uint8_t)(first_power_ & 0xff);
 	send_buf[6] = (uint8_t)((next_power_ >> 8) & 0xff);
@@ -73,7 +73,7 @@ int MotorLib::Sd::sendLimSw(uint8_t address_, uint8_t semi_id_, OutPort out_port
 	return usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
 }
 
-int MotorLib::Sd::sendStatus(uint8_t address_, StatusData& sd_status_, uint32_t usb_timeout_){
+int MotorLib::Sd::sendStatus(uint8_t address_, SdStatus& sd_status_, uint32_t usb_timeout_){
 	uint8_t send_buf[TX_SIZE] = {0u};
 	uint8_t read_buf[RX_SIZE] = {0u};
 	int return_status = UsbStatus::USB_OTHER_ERROR;
@@ -92,11 +92,11 @@ int MotorLib::Sd::sendStatus(uint8_t address_, StatusData& sd_status_, uint32_t 
 		return_status = usb->readUsb(read_buf, RX_SIZE, EndPoint::EP1, usb_timeout_);
 
 		if(return_status != RX_SIZE){
-			for(auto itr=finish_queue,begin(); itr!=finish_queue.end(); itr++){
-				if(*itr[2] == FinishStatus::STATUS and *itr[0] == (address_ | IdType::SD) and *itr[1] == 0){
-					sd_status_.firmware = float(*itr[3]) / 10.0f;
-					sd_status_.lim_sw0 = bool((*itr[7] >> 1) & 0x01);
-					sd_status_.lim_sw1 = bool(*itr[7] & 0x01);
+			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
+				if((*itr)[2] == FinishStatus::STATUS and (*itr)[0] == (address_ | IdType::SD) and (*itr)[1] == 0){
+					sd_status_.firmware = float((*itr)[3]) / 10.0f;
+					sd_status_.lim_sw0 = bool(((*itr)[7] >> 1) & 0x01);
+					sd_status_.lim_sw1 = bool((*itr)[7] & 0x01);
 
 					finish_queue.erase(itr);
 
@@ -110,7 +110,7 @@ int MotorLib::Sd::sendStatus(uint8_t address_, StatusData& sd_status_, uint32_t 
 		if(read_buf[0] != (address_ | IdType::SD) or read_buf[1] != 0u or read_buf[2] != FinishStatus::STATUS){
 			std::array<uint8_t, RX_SIZE> status_tmp;
 
-			memcpy(&status_tmp, rx_data, RX_SIZE);
+			memcpy(&status_tmp, read_buf, RX_SIZE);
 
 			finish_queue.push_back(status_tmp);
 		}else{
@@ -124,7 +124,7 @@ int MotorLib::Sd::sendStatus(uint8_t address_, StatusData& sd_status_, uint32_t 
 }
 
 
-int MotorLib::Sd::sendStatus(uint8_t address_, uint8_t semi_id_, StatusData& sd_status_, uint32_t usb_timeout_){
+int MotorLib::Sd::sendStatus(uint8_t address_, uint8_t semi_id_, SdStatus& sd_status_, uint32_t usb_timeout_){
 	uint8_t send_buf[TX_SIZE] = {0u};
 	uint8_t read_buf[RX_SIZE] = {0u};
 	int return_status = UsbStatus::USB_OTHER_ERROR;
@@ -143,11 +143,11 @@ int MotorLib::Sd::sendStatus(uint8_t address_, uint8_t semi_id_, StatusData& sd_
 		return_status = usb->readUsb(read_buf, RX_SIZE, EndPoint::EP1, usb_timeout_);
 
 		if(return_status != RX_SIZE){
-			for(auto itr=finish_queue,begin(); itr!=finish_queue.end(); itr++){
-				if(*itr[2] == FinishStatus::STATUS and *itr[0] == (address_ | IdType::SD) and *itr[1] == (semi_id_ | IdType::SM)){
-					sd_status_.firmware = float(*itr[3]) / 4.0f;
-					sd_status_.lim_sw0 = bool((*itr[7] >> 1) & 0x01);
-					sd_status_.lim_sw1 = bool(*itr[7] & 0x01);
+			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
+				if((*itr)[2] == FinishStatus::STATUS and (*itr)[0] == (address_ | IdType::SD) and (*itr)[1] == (semi_id_ | IdType::SM)){
+					sd_status_.firmware = float((*itr)[3]) / 4.0f;
+					sd_status_.lim_sw0 = bool(((*itr)[7] >> 1) & 0x01);
+					sd_status_.lim_sw1 = bool((*itr)[7] & 0x01);
 
 					finish_queue.erase(itr);
 
@@ -159,15 +159,15 @@ int MotorLib::Sd::sendStatus(uint8_t address_, uint8_t semi_id_, StatusData& sd_
 		}
 
 		if(read_buf[0] != (address_ | IdType::SD) or read_buf[1] != (semi_id_ | IdType::SM) or read_buf[2] != FinishStatus::STATUS){
-			std::array<uint8_t, RX_SIEZ> status_tmp;
+			std::array<uint8_t, RX_SIZE> status_tmp;
 
 			memcpy(&status_tmp, read_buf, RX_SIZE);
 
 			finish_queue.push_back(status_tmp);
 		}else{
-			sd_status_.datas.status.firmware = float(read_buf[3]) / 100.0f;
-			sd_status_.datas.status.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
-			sd_status_.datas.status.lim_sw1 = bool(read_buf[7] & 0x01);
+			sd_status_.firmware = float(read_buf[3]) / 100.0f;
+			sd_status_.lim_sw0 = bool((read_buf[7] >> 1) & 0x01);
+			sd_status_.lim_sw1 = bool(read_buf[7] & 0x01);
 
 			return return_status;
 		}

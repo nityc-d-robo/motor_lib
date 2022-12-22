@@ -11,7 +11,7 @@ namespace MotorLib{
 
 	class Sm{
 		public:
-			typedef struct Mode{
+			typedef enum Mode{
 				STATUS, DATA
 			}Mode;
 

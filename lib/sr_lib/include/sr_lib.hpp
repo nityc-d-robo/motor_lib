@@ -19,7 +19,7 @@ namespace MotorLib{
 
 	class Sr{
 		public:
-			typedef struct Mode{
+			typedef enum Mode{
 				STATUS, STOP, START, COLOR
 			}Mode;
 
@@ -29,7 +29,7 @@ namespace MotorLib{
 			int sendColors(uint8_t red_, uint8_t green_, uint8_t blue_, float freq_, uint32_t usb_timeout_);
 			int sendColors(Color color_, float alpha_, float freq_, uint32_t usb_timeout_);
 			int sendColors(std::string color_code_, float freq_, uint32_t usb_timeout_);
-			int sendStatus(StatusData& sr_status_, uint32_t usb_timeout_);
+			int sendStatus(SrStatus& sr_status_, uint32_t usb_timeout_);
 		private:
 			UsbConnect* usb;
 	};
