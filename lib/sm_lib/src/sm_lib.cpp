@@ -21,7 +21,7 @@ int MotorLib::Sm::sendDatas(uint8_t address_, uint8_t* write_data_, uint8_t data
 	}
 
 	send_buf[0] = address_ | IdType::SM;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)this->Mode::DATA;
 
 	memcpy(send_buf + 3, write_data_, data_size_);
@@ -35,7 +35,7 @@ int MotorLib::Sm::sendStatus(uint8_t address_, SmStatus& sm_status_, uint32_t us
 	int return_status = UsbStatus::USB_OTHER_ERROR;
 
 	send_buf[0] = address_ | IdType::SM;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)this->Mode::STATUS;
 	
 	return_status = usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
@@ -49,7 +49,7 @@ int MotorLib::Sm::sendStatus(uint8_t address_, SmStatus& sm_status_, uint32_t us
 
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
-				if((*itr)[Header::MODE] == FinishStatus::STATUS and (*itr)[Header::ADDRESS] == (address_ | IdType::SM) and (*itr)[Header::SEMI_ID] == 0u){
+				if((*itr)[Header::MODE] == FinishStatus::STATUS and (*itr)[Header::ADDRESS] == (address_ | IdType::SM) and (*itr)[Header::SEMI_ID] == IdType::MASTER){
 					sm_status_.type_num = (*itr)[3];
 					
 					memcpy(sm_status_.datas, &((*itr)[4]), 4);

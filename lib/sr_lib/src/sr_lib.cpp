@@ -15,7 +15,7 @@ void MotorLib::Sr::sendStop(void){
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = (uint8_t)IdType::SR;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)Mode::STOP;
 
 	while(usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, 300) != TX_SIZE);
@@ -25,7 +25,7 @@ int MotorLib::Sr::sendStart(uint32_t usb_timeout_){
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = (uint8_t)IdType::SR;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)Mode::START;
 
 	return usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
@@ -35,7 +35,7 @@ int MotorLib::Sr::sendColors(uint8_t red_, uint8_t green_, uint8_t blue_, float 
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = (uint8_t)IdType::SR;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)Mode::COLOR;
 	send_buf[4] = green_;
 	send_buf[5] = red_;
@@ -75,7 +75,7 @@ int MotorLib::Sr::sendStatus(SrStatus& sr_status_, uint32_t usb_timeout_){
 	int return_status = UsbStatus::USB_OTHER_ERROR;
 
 	send_buf[0] = (uint8_t)IdType::SR;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)Mode::STATUS;
 
 	return_status = usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
@@ -89,7 +89,7 @@ int MotorLib::Sr::sendStatus(SrStatus& sr_status_, uint32_t usb_timeout_){
 
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
-				if((*itr)[0] == IdType::SR and (*itr)[2] == FinishStatus::STATUS){
+				if((*itr)[Header::ADDRESS] == IdType::SR and (*itr)[Header::MODE] == FinishStatus::STATUS){
 					sr_status_.firmware = float((*itr)[3]) / 10.0f;
 					sr_status_.voltage = bool((*itr)[4] & 0x01);
 					sr_status_.freq = float(((*itr)[4] >> 1) & 0x7f);
@@ -106,7 +106,7 @@ int MotorLib::Sr::sendStatus(SrStatus& sr_status_, uint32_t usb_timeout_){
 			return return_status;
 		}
 
-		if(read_buf[0] != IdType::SR or read_buf[3] != FinishStatus::STATUS){
+		if(read_buf[Header::ADDRESS] != IdType::SR or read_buf[Header::MODE] != FinishStatus::STATUS){
 			std::array<uint8_t, RX_SIZE> status_tmp;
 
 			memcpy(&status_tmp, read_buf, RX_SIZE);

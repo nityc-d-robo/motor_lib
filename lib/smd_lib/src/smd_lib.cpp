@@ -15,7 +15,7 @@ int MotorLib::Smd::sendAngle(uint8_t address_, Port port_, uint8_t angle_, uint3
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = address_ | IdType::SMD;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)this->Mode::ANGLE;
 	send_buf[3] = (uint8_t)port_;
 	send_buf[4] = angle_;
@@ -39,7 +39,7 @@ int MotorLib::Smd::sendAngleBoth(uint8_t address_, uint8_t angle0_, uint8_t angl
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = address_ | IdType::SMD;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)this->Mode::ANGLE_BOTH;
 	send_buf[3] = 0u;
 	send_buf[4] = angle0_;
@@ -67,7 +67,7 @@ int MotorLib::Smd::sendStatus(uint8_t address_, SmdStatus& smd_status_, uint32_t
 	int return_status;
 
 	send_buf[0] = address_ | IdType::SMD;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)this->Mode::STATUS;
 
 	return_status = usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
@@ -81,7 +81,7 @@ int MotorLib::Smd::sendStatus(uint8_t address_, SmdStatus& smd_status_, uint32_t
 
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
-				if((*itr)[Header::MODE] == FinishStatus::STATUS and (*itr)[Header::ADDRESS] == (address_ | IdType::SMD) and (*itr)[Header::SEMI_ID] == 0u){
+				if((*itr)[Header::MODE] == FinishStatus::STATUS and (*itr)[Header::ADDRESS] == (address_ | IdType::SMD) and (*itr)[Header::SEMI_ID] == IdType::MASTER){
 					smd_status_.firmware = float((*itr)[3]) / 10.0f;
 					smd_status_.angle0 = (*itr)[4];
 					smd_status_.angle1 = (*itr)[5];

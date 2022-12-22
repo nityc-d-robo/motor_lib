@@ -75,7 +75,7 @@ int MotorLib::Md::sendAngle(uint8_t address_, uint16_t speed_, int32_t angle_, u
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = address_;
-	send_buf[1] = 0;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)ANGLE;
 	send_buf[3] = (angle_ >= 0) ? 1u : 0u;
 	send_buf[4] = (uint8_t)((speed_ >> 8) & 0xff);
@@ -109,7 +109,7 @@ int MotorLib::Md::sendLimSw(uint8_t address_, bool phase_, uint16_t speed_, LimP
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = address_;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)LIM_SW; 
 	send_buf[3] = (uint8_t)phase_;
 	send_buf[4] = (uint8_t)((speed_ >> 8) & 0xff);
@@ -143,7 +143,7 @@ int MotorLib::Md::sendInit(uint8_t address_, bool angle_reset_, uint16_t max_rpm
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = address_;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)Mode::INIT;
 	send_buf[3] = (uint8_t)angle_reset_;
 	send_buf[4] = (uint8_t)((max_rpm_ >> 8) & 0xff);
@@ -179,7 +179,7 @@ int MotorLib::Md::sendStatus(uint8_t address_, MdStatus& md_status_, uint32_t us
 	int return_status = UsbStatus::USB_OTHER_ERROR;
 
 	send_buf[0] = address_;
-	send_buf[1] = 0u;
+	send_buf[1] = IdType::MASTER;
 	send_buf[2] = (uint8_t)Mode::STATUS;
 
 	return_status = usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
@@ -193,7 +193,7 @@ int MotorLib::Md::sendStatus(uint8_t address_, MdStatus& md_status_, uint32_t us
 
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
-				if((*itr)[2] == FinishStatus::STATUS and (*itr)[0] == address_ and (*itr)[1] == 0u){
+				if((*itr)[Header::MODE] == FinishStatus::STATUS and (*itr)[Header::ADDRESS] == address_ and (*itr)[Header::SEMI_ID] == IdType::MASTER){
 					md_status_.firmware = float((*itr)[3]) / 10.0f;
 					md_status_.angle = (int32_t)(((*itr)[5] << 8) | (*itr)[6]) * ((*itr)[4] == 0) ? 1 : -1;
 					md_status_.lim_sw0 = bool(((*itr)[7] >> 1) & 0x01);
@@ -208,7 +208,7 @@ int MotorLib::Md::sendStatus(uint8_t address_, MdStatus& md_status_, uint32_t us
 			return return_status;
 		}
 
-		if(read_buf[0] != address_ or read_buf[1] != 0u or read_buf[2] != FinishStatus::STATUS){
+		if(read_buf[Header::ADDRESS] != address_ or read_buf[Header::SEMI_ID] != IdType::MASTER or read_buf[Header::MODE] != FinishStatus::STATUS){
 			std::array<uint8_t, RX_SIZE> status_tmp;
 
 			memcpy(&status_tmp, read_buf, RX_SIZE);
@@ -245,7 +245,7 @@ int MotorLib::Md::sendStatus(uint8_t address_, uint8_t semi_id_, MdStatus& md_st
 
 		if(return_status != RX_SIZE){
 			for(auto itr=finish_queue.begin(); itr!=finish_queue.end(); itr++){
-				if((*itr)[2] == FinishStatus::STATUS and (*itr)[0] == address_ and (*itr)[1] == (semi_id_ | IdType::SM)){
+				if((*itr)[Header::MODE] == FinishStatus::STATUS and (*itr)[Header::ADDRESS] == address_ and (*itr)[Header::SEMI_ID] == (semi_id_ | IdType::SM)){
 					md_status_.firmware = float((*itr)[3]) / 10.0f;
 					md_status_.angle = (int32_t)(((*itr)[5] << 8) | (*itr)[6]) * ((*itr)[4] & 0x01 == 0) ? 1 : -1;
 					md_status_.lim_sw0 = bool(((*itr)[7] >> 1) & 0x01);
@@ -260,7 +260,7 @@ int MotorLib::Md::sendStatus(uint8_t address_, uint8_t semi_id_, MdStatus& md_st
 			return return_status;
 		}
 
-		if(read_buf[0] != address_ or read_buf[1] != (semi_id_ | IdType::SM) or read_buf[2] != FinishStatus::STATUS){
+		if(read_buf[Header::ADDRESS] != address_ or read_buf[Header::SEMI_ID] != (semi_id_ | IdType::SM) or read_buf[Header::MODE] != FinishStatus::STATUS){
 			std::array<uint8_t, RX_SIZE> data_tmp;
 
 			memcpy(&data_tmp, read_buf, RX_SIZE);
