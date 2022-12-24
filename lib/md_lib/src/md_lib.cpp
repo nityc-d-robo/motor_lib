@@ -15,7 +15,7 @@ int MotorLib::Md::sendPwm(uint8_t address_, bool phase_, uint16_t power_, uint32
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = address_;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)PWM;
 	send_buf[3] = (uint8_t)phase_;
 	send_buf[4] = (uint8_t)((power_ >> 8) & 0xff);
@@ -41,7 +41,7 @@ int MotorLib::Md::sendSpeed(uint8_t address_, bool phase_, uint16_t speed_, uint
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = address_;
-	send_buf[1] = 0u;
+	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)SPEED;
 	send_buf[3] = (uint8_t)phase_;
 	send_buf[4] = (uint8_t)((speed_ >> 8) & 0xff);
@@ -77,7 +77,7 @@ int MotorLib::Md::sendAngle(uint8_t address_, uint16_t speed_, int32_t angle_, u
 	send_buf[0] = address_;
 	send_buf[1] = (uint8_t)IdType::MASTER;
 	send_buf[2] = (uint8_t)ANGLE;
-	send_buf[3] = (angle_ >= 0) ? 1u : 0u;
+	send_buf[3] = (angle_ >= 0) ? 0u : 1u;
 	send_buf[4] = (uint8_t)((speed_ >> 8) & 0xff);
 	send_buf[5] = (uint8_t)(speed_ & 0xff);
 	send_buf[6] = (uint8_t)((std::abs(angle_) >> 8) & 0xff);
@@ -94,7 +94,7 @@ int MotorLib::Md::sendAngle(uint8_t address_, uint8_t semi_id_, uint16_t speed_,
 	send_buf[0] = address_;
 	send_buf[1] = semi_id_ | IdType::SM;
 	send_buf[2] = (uint8_t)ANGLE;
-	send_buf[3] = (angle_ >= 0) ? 1u : 0u;
+	send_buf[3] = (angle_ >= 0) ? 0u : 1u;
 	send_buf[4] = (uint8_t)((speed_ >> 8) & 0xff);
 	send_buf[5] = (uint8_t)(speed_ & 0xff);
 	send_buf[6] = (uint8_t)((std::abs(angle_) >> 8) & 0xff);
