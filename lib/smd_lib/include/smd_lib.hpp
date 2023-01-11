@@ -5,7 +5,7 @@
 class SMd{
 	public:
 		SMd(SerialConnect& serial_);
-		void sendAngle(uint16_t address_, uint16_t mode_, uint16_t mask_, uint16_t angle1_, uint16_t angle2_);
+		void sendAngle(uint16_t address_, uint16_t mode_, uint16_t mask_, uint16_t angle_);
 
 	private:
 		SerialConnect* serial;
