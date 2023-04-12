@@ -1,7 +1,6 @@
 #pragma once
 
 #include <usb_connect/usb_connect.hpp>
-#include <common_lib.hpp>
 
 namespace MotorLib{
 	typedef struct SdStatus{
