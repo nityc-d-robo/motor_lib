@@ -3,7 +3,7 @@ project(motor_lib CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
-find_package(serial_connect REQUIRED)
+find_package(usb_connect REQUIRED)
 
 add_subdirectory(lib/md_lib)
 add_subdirectory(lib/sd_lib)
