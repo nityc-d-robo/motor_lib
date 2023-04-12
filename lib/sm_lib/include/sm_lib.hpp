@@ -1,7 +1,12 @@
 #pragma once
 
 #include <usb_connect/usb_connect.hpp>
+
+#ifdef MOTOR_INSTALL
 #include <common_lib.hpp>
+#else
+#include "../common_lib/common_lib.hpp"
+#endif
 
 namespace MotorLib{
 	typedef struct SmStatus{

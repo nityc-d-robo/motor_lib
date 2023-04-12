@@ -11,6 +11,8 @@ link_directories(
 	../common_lib/include
 )
 
+add_definitions(-DMOTOR_INSTALL)
+
 add_library(sm_lib SHARED
 	src/sm_lib.cpp
 )
