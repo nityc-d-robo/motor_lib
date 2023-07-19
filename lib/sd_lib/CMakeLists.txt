@@ -3,10 +3,12 @@ project(libsd_lib CXX)
 
 include_directories(
 	include
+	../common_lib/include
 )
 
 link_directories(
 	include
+	../common_lib/include
 )
 
 add_library(sd_lib SHARED

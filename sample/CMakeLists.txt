@@ -1,31 +1,21 @@
 cmake_minimum_required(VERSION 3.16.3)
-project(test_smd CXX)
+project(motor_sample CXX)
 
-set(CMAKE_CXX_FLAGS "-fopenmp")
-
-find_package(serial_connect REQUIRED)
+find_package(usb_connect REQUIRED)
 find_package(motor_lib REQUIRED)
 
 include_directories(
 	include
 )
 
-add_executable(test_md src/test_md.cpp)
-add_executable(test_smd src/test_smd.cpp)
+add_executable(md_sample src/md_sample.cpp)
 
-target_link_libraries(test_md
-	serial_connect
+target_link_libraries(md_sample
+	usb_connect
 	motor_lib
 	md_lib
-	smd_lib
 	sd_lib
-	sr_lib
-)
-target_link_libraries(test_smd
-	serial_connect
-	motor_lib
-	md_lib
 	smd_lib
-	sd_lib
+	sm_lib
 	sr_lib
 )
