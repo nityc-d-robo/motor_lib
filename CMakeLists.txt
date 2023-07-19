@@ -6,7 +6,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 find_package(usb_connect REQUIRED)
 
 add_subdirectory(lib/md_lib)
-add_subdirectory(lib/smd_lib)
 add_subdirectory(lib/sd_lib)
 add_subdirectory(lib/smd_lib)
 add_subdirectory(lib/sr_lib)
@@ -18,7 +17,6 @@ add_definitions(-DMOTOR_INSTALL)
 include_directories(
 	include
 	lib/md_lib/include
-	lib/smd_lib/include
 	lib/sd_lib/include
 	lib/smd_lib/include
 	lib/sr_lib/include
@@ -29,7 +27,6 @@ include_directories(
 link_directories(
 	include
 	lib/md_lib/include
-	lib/smd_lib/include
 	lib/sd_lib/include
 	lib/smd_lib/include
 	lib/sr_lib/include
@@ -47,7 +44,6 @@ set_target_properties(motor_lib PROPERTIES
 
 target_link_libraries(motor_lib PUBLIC
 	md_lib
-	smd_lib
 	sd_lib
 	smd_lib
 	sr_lib
@@ -72,3 +68,4 @@ install(
 export(EXPORT motor_lib-export
 	FILE motor_lib-export.cmake
 )
+
