@@ -11,7 +11,7 @@ void MotorLib::stopAll(void){
 	uint8_t send_buf[TX_SIZE] = {0u};
 
 	send_buf[0] = IdType::EMMERGENCY;
-	send_buf[1] = IdType::EMMERGENCY;
+	send_buf[1] = IdType::MASTER;
 
 	while(usb.writeUsb(send_buf, TX_SIZE, EndPoint::EP1, 300) != TX_SIZE);
 }
