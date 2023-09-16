@@ -15,10 +15,12 @@ namespace MotorLib{
 			}LimPort;
 
 			typedef enum Mode{
-				STATUS, POWER, LIM_SW
+				STATUS, POWER, LIM_SW, SINGLE_POWER
 			}Mode;
 
 			Sd(UsbConnect& usb_);
+			int sendPower(uint8_t address_, Port out_port_, uint16_t power_, uint32_t usb_timeout_);
+			int sendPower(uint8_t address_, uint8_t semi_id_, Port out_port_, uint16_t power_, uint32_t usb_timeout_);
 			int sendPowers(uint8_t address_, uint16_t power1_, uint16_t power2_, uint32_t usb_timeout_);
 			int sendPowers(uint8_t address_, uint8_t semi_id_, uint16_t power1_, uint16_t power2_, uint32_t usb_timeout_);
 			int sendLimSw(uint8_t address_, Port out_port_, Port lim_port_, uint16_t first_power_, uint16_t next_power_, uint16_t timeout_, uint32_t usb_timeout_);
