@@ -11,6 +11,32 @@ MotorLib::Sd::Sd(UsbConnect& usb_){
 	 usb = &usb_;
 }
 
+int MotorLib::Sd::sendPower(uint8_t address_, Port out_port_, uint16_t power_, uint32_t usb_timeout_){
+	uint8_t send_buf[TX_SIZE] = {0u};
+
+	send_buf[0] = address_ | IdType::SD;
+	send_buf[1] = (uint8_t)IdType::MASTER;
+	send_buf[2] = (uint8_t)Mode::SINGLE_POWER;
+	send_buf[3] = (uint8_t)(out_port_);
+	send_buf[4] = (uint8_t)((power_ >> 8) & 0xff);
+	send_buf[5] = (uint8_t)(power_ & 0xff);
+
+	return usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
+}
+
+int MotorLib::Sd::sendPower(uint8_t address_, uint8_t semi_id_, Port out_port_, uint16_t power_, uint32_t usb_timeout_){
+	uint8_t send_buf[TX_SIZE] = {0u};
+
+	send_buf[0] = address_ | IdType::SD;
+	send_buf[1] = semi_id_ | IdType::SM;
+	send_buf[2] = (uint8_t)Mode::SINGLE_POWER;
+	send_buf[3] = (uint8_t)(out_port_);
+	send_buf[4] = (uint8_t)((power_ >> 8) & 0xff);
+	send_buf[5] = (uint8_t)(power_ & 0xff);
+
+	return usb->writeUsb(send_buf, TX_SIZE, EndPoint::EP1, usb_timeout_);
+}
+
 int MotorLib::Sd::sendPowers(uint8_t address_, uint16_t power1_, uint16_t power2_, uint32_t usb_timeout_){
 	uint8_t send_buf[TX_SIZE] = {0u};
 
