@@ -12,13 +12,16 @@ pub mod md{
         pub current: i16,
     }
 
-    pub fn send_current(handle_: DeviceHandle<GlobalContext>, end_point_: u8, std_id_: u16, controller_id_: u8, current_: i16) -> MdStatus{
-        let send_buf: [u8; 5] = [
+    pub fn send_current(handle_: &DeviceHandle<GlobalContext>, end_point_: u8, std_id_: u16, controller_id_: u8, current_: i16) -> MdStatus{
+        let send_buf: [u8; 8] = [
             ((std_id_ >> 8) & 0xff) as u8,
             (std_id_ & 0xff) as u8,
             controller_id_,
             ((current_ >> 8) & 0xff) as u8,
             (current_ & 0xff) as u8,
+            0,
+            0,
+            0
         ];
         handle_.write_bulk(LIBUSB_ENDPOINT_OUT | end_point_, &send_buf, Duration::from_millis(5000)).unwrap();
         
@@ -47,14 +50,28 @@ pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) 
 
 #[cfg(test)]
 mod tests {
-    use crate::md::send_current;
-
     use super::*;
+
+    use crate::md::send_current;
+    use std::{time::Duration, thread::sleep};
 
     #[test]
     fn it_works() {
         let handle = init_usb_handle(0x483, 0x5740, 0);
-        let return_status = send_current(handle, 1, 0x200, 1, 16384);
-        println!("{:?}", return_status);
+        for i in (0..=16384).step_by(10){
+            let return_status = send_current(&handle, 1, 0x200, 1, i);
+            println!("power: {i}, {:?}", return_status);
+            sleep(Duration::from_millis(100));
+        }
+        for i in (-16384..=16384).step_by(10).rev(){
+            let return_status = send_current(&handle, 1, 0x200, 1, i);
+            println!("power: {i}, {:?}", return_status);
+            sleep(Duration::from_millis(100));
+        }
+        for i in (-16384..=0).step_by(10).rev(){
+            let return_status = send_current(&handle, 1, 0x200, 1, i);
+            println!("power: {i}, {:?}", return_status);
+            sleep(Duration::from_millis(100));
+        }
     }
 }
