@@ -20,7 +20,7 @@ mod tests {
     fn motor_rotation() {
         let handle = init_usb_handle(0x483, 0x5740, 0);
         for i in (0..=16384).step_by(100){
-            let return_status = send_current(&handle, 1, 0x200, 1, i);
+            let return_status = send_current(&handle, 0x200, 1, i);
             println!("power: {i}, {:?}", return_status);
             sleep(Duration::from_millis(100));
         }
