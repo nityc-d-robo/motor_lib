@@ -34,19 +34,15 @@ pub fn send_current(handle_: &DeviceHandle<GlobalContext>, controller_id_: u8, c
 pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, controller_id_: u8) -> MdStatus{
     let mut receive_buf = [0;8];
     loop {
-        //handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
-        //let received_stdid = (receive_buf[0] as u16) << 8 | (receive_buf[1] as u16);
-        //if received_stdid == (0x200 + (controller_id_ as u16)){
+        handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
+        let received_stdid = (receive_buf[0] as u16) << 8 | (receive_buf[1] as u16);
+        if received_stdid == (0x200 + (controller_id_ as u16)){
             return MdStatus{
-                //std_id: received_stdid,
-                //angle: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
-                //speed: ((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16)),
-                //current: ((receive_buf[6] as i16) << 8 | (receive_buf[7] as i16)),
-                std_id: 0,
-                angle: 0,
-                speed: 0,
-                current: 0,
+                std_id: received_stdid,
+                angle: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
+                speed: ((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16)),
+                current: ((receive_buf[6] as i16) << 8 | (receive_buf[7] as i16)),
             }
-        //}
+        }
     }
 }
