@@ -3,7 +3,7 @@ use rusb::{open_device_with_vid_pid, DeviceHandle, GlobalContext};
 pub mod blmd;
 
 pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) -> DeviceHandle<GlobalContext>{
-    let mut handle = open_device_with_vid_pid(vendor_id, product_id).unwrap();
+    let handle = open_device_with_vid_pid(vendor_id, product_id).unwrap();
     handle.set_auto_detach_kernel_driver(true).unwrap();
     handle.claim_interface(b_interface_number).unwrap();
     return handle

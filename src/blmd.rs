@@ -16,7 +16,6 @@ pub struct MdStatus {
 }
 
 pub fn send_current(handle_: &DeviceHandle<GlobalContext>, controller_id_: u8, current_: i16) -> MdStatus{
-    let std_id: u16 = if controller_id_ < 5 {0x200} else {0x199};
     let send_buf: [u8; 8] = [
         0x30,
         0,
