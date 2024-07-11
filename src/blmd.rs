@@ -1,5 +1,6 @@
 use std::time::Duration;
 use rusb::{DeviceHandle, GlobalContext, constants::{LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_OUT}};
+use advanced_pid::{prelude::*, VelPid};
 
 #[allow(non_snake_case)]
 pub mod EndPont {
@@ -13,6 +14,16 @@ pub struct MdStatus {
     pub angle: i16,
     pub speed: i16,
     pub current: i16,
+}
+
+pub fn send_velocity(handle_: &DeviceHandle<GlobalContext>, pid_: &mut VelPid, controller_id_: u8, velocity_: i16) -> MdStatus{
+    let actual = receive_status(handle_, controller_id_).speed;
+    let output = pid_.update(velocity_ as f32, actual as f32, 0.01) as i16; // 制御周期100Hz
+    let return_status = send_current(handle_, controller_id_, output);
+    if cfg!(test){
+        println!("{},{},{}", actual, output, return_status.speed);
+    }
+    return return_status;
 }
 
 pub fn send_current(handle_: &DeviceHandle<GlobalContext>, controller_id_: u8, current_: i16) -> MdStatus{

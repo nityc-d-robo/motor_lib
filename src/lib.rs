@@ -13,7 +13,8 @@ pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) 
 mod tests {
     use super::*;
 
-    use blmd::send_current;
+    use blmd::{send_velocity, send_current};
+    use advanced_pid::{prelude::*, PidConfig, VelPid};
     use std::{time::Duration, thread::sleep};
 
     #[test]
@@ -23,6 +24,16 @@ mod tests {
             let return_status = send_current(&handle, 2, i);
             println!("power: {i}, {:?}", return_status);
             sleep(Duration::from_millis(100));
+        }
+    }
+    #[test]
+    fn speed_pid() {
+        let handle = init_usb_handle(0x483, 0x5740, 0);
+        let config = PidConfig::new(1.0, 0.1, 0.1).with_limits(-16384.0, 16384.0);
+        let mut pid = VelPid::new(config);
+        for _i in (0..=100).step_by(1){
+            send_velocity(&handle, &mut pid, 2, 500);
+            sleep(Duration::from_millis(10));
         }
     }
 }
