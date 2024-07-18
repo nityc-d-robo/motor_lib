@@ -18,7 +18,7 @@ pub struct MdStatus {
 
 pub fn send_velocity(handle_: &DeviceHandle<GlobalContext>, pid_: &mut VelPid, controller_id_: u8, velocity_: i16) -> MdStatus{
     let actual = receive_status(handle_, controller_id_).speed;
-    let output = pid_.update(velocity_ as f32, actual as f32, 0.01) as i16; // 制御周期100Hz
+    let output = pid_.update(velocity_ as f32, actual as f32, 0.3) as i16; // 制御周期100Hz
     let return_status = send_current(handle_, controller_id_, output);
     if cfg!(test){
         println!("{},{},{}", actual, output, return_status.speed);
