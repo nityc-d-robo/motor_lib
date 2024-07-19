@@ -2,11 +2,7 @@ use std::time::Duration;
 use rusb::{DeviceHandle, GlobalContext, constants::{LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_OUT}};
 use advanced_pid::{prelude::*, VelPid};
 
-#[allow(non_snake_case)]
-pub mod EndPont {
-    pub static EP1: u8 = 1;
-    pub static EP2: u8 = 2;
-}
+use crate::EndPont;
 
 #[derive(Debug)]
 pub struct BlMdStatus {

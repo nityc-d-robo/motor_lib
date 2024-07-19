@@ -1,6 +1,24 @@
 use rusb::{open_device_with_vid_pid, DeviceHandle, GlobalContext};
 
+pub mod md;
 pub mod blmd;
+
+#[allow(non_snake_case)]
+pub mod IdType {
+    pub static MD: u8 = 0x00;
+    pub static SD: u8 = 0x10;
+    pub static SMD: u8 = 0x20;
+    pub static BLMD: u8 = 0x30;
+    pub static SR: u8 = 0x40;
+    pub static SM: u8 = 0x50;
+    pub static MASTER: u8 = 0x60;
+    pub static EMMERGENCY: u8 = 0xf0;
+}
+
+#[allow(non_snake_case)]
+pub mod EndPont {
+    pub static EP1: u8 = 1;
+}
 
 pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) -> DeviceHandle<GlobalContext>{
     let handle = open_device_with_vid_pid(vendor_id, product_id).unwrap();
