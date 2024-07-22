@@ -2,6 +2,7 @@ use rusb::{open_device_with_vid_pid, DeviceHandle, GlobalContext};
 
 pub mod md;
 pub mod sd;
+pub mod smd;
 pub mod blmd;
 
 #[allow(non_snake_case)]
