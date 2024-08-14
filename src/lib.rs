@@ -1,4 +1,5 @@
-use rusb::{open_device_with_vid_pid, DeviceHandle, GlobalContext};
+use std::time::Duration;
+use rusb::{open_device_with_vid_pid, DeviceHandle, GlobalContext, constants::LIBUSB_ENDPOINT_OUT};
 
 pub mod md;
 pub mod sd;
@@ -29,6 +30,20 @@ pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) 
     return handle
 }
 
+pub fn send_emergency(handle_: &DeviceHandle<GlobalContext>){
+    let send_buf: [u8; 8] = [
+        IdType::EMMERGENCY,
+        IdType::MASTER,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ];
+    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -40,10 +55,10 @@ mod tests {
     #[test]
     fn motor_rotation() {
         let handle = init_usb_handle(0x483, 0x5740, 0);
-        for i in (0..=16384).step_by(100){
-            let return_status = send_current(&handle, 2, i);
+        for i in (0..=1024).step_by(1){
+            let return_status = md::send_pwm(&handle, 0x00, i);
             println!("power: {i}, {:?}", return_status);
-            sleep(Duration::from_millis(100));
+            sleep(Duration::from_millis(10));
         }
     }
     #[test]
