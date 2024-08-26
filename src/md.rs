@@ -5,12 +5,12 @@ use crate::{IdType, EndPont};
 
 #[allow(non_snake_case)]
 pub mod Mode {
-    pub static INIT: u8 = 0;
-    pub static STATUS: u8 = 1;
-    pub static PWM: u8 = 2;
-    pub static SPEED: u8 = 3;
-    pub static ANGLE: u8 = 4;
-    pub static LIM_SW: u8 = 5;
+    pub const INIT: u8 = 0;
+    pub const STATUS: u8 = 1;
+    pub const PWM: u8 = 2;
+    pub const SPEED: u8 = 3;
+    pub const ANGLE: u8 = 4;
+    pub const LIM_SW: u8 = 5;
 }
 
 #[derive(Debug)]
