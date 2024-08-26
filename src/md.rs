@@ -29,13 +29,14 @@ pub struct MdStatus {
 }
 
 pub fn send_pwm(handle_: &DeviceHandle<GlobalContext>, address_: u8, power_: i16) -> MdStatus{
+    let power_abs = power_.abs();
     let send_buf: [u8; 8] = [
         address_,
         IdType::MASTER,
         Mode::PWM,
         if power_ >= 0 {0} else {1},
-        ((power_ >> 8) & 0xff) as u8,
-        (power_ & 0xff) as u8,
+        ((power_abs >> 8) & 0xff) as u8,
+        (power_abs & 0xff) as u8,
         0,
         0
     ];
