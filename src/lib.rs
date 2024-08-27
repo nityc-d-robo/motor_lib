@@ -8,14 +8,14 @@ pub mod blmd;
 
 #[allow(non_snake_case)]
 pub mod IdType {
-    pub static MD: u8 = 0x00;
-    pub static SD: u8 = 0x10;
-    pub static SMD: u8 = 0x20;
-    pub static BLMD: u8 = 0x30;
-    pub static SR: u8 = 0x40;
-    pub static SM: u8 = 0x50;
-    pub static MASTER: u8 = 0x60;
-    pub static EMMERGENCY: u8 = 0xf0;
+    pub const MD: u8 = 0x00;
+    pub const SD: u8 = 0x10;
+    pub const SMD: u8 = 0x20;
+    pub const BLMD: u8 = 0x30;
+    pub const SR: u8 = 0x40;
+    pub const SM: u8 = 0x50;
+    pub const MASTER: u8 = 0x60;
+    pub const EMMERGENCY: u8 = 0xf0;
 }
 
 #[allow(non_snake_case)]

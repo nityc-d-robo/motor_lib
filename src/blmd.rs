@@ -4,6 +4,15 @@ use advanced_pid::{prelude::*, VelPid};
 
 use crate::EndPont;
 
+#[allow(non_snake_case)]
+pub mod Mode {
+    pub const INIT: u8 = 0;
+    pub const STATUS: u8 = 1;
+    pub const CURRENT: u8 = 2;
+    pub const VELOCITY: u8 = 3;
+    pub const ANGLE: u8 = 4;
+}
+
 #[derive(Debug)]
 pub struct BlMdStatus {
     pub std_id: u16,
