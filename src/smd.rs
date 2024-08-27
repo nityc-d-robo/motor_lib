@@ -48,8 +48,9 @@ pub fn send_angles(handle_: &DeviceHandle<GlobalContext>, address_: u8, angle0_:
     return receive_status(handle_, address_)
 }
 
+#[allow(unused_variables)]
 pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, address_: u8) -> SmdStatus{
-    let mut receive_buf = [0;8];
+    let receive_buf = [0;8]; // SMD側がデータ返送に対応するまでの仮実装
     loop {
         // handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
         // if (address_ | IdType::SD) == receive_buf[0] {
