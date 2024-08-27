@@ -49,7 +49,7 @@ pub fn send_current(handle_: &DeviceHandle<GlobalContext>, controller_id_: u8, c
 pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, controller_id_: u8) -> BlMdStatus{
     let mut receive_buf = [0;8];
     loop {
-        handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
+        handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_secs(300)).unwrap();
         let received_stdid = (receive_buf[0] as u16) << 8 | (receive_buf[1] as u16);
         if received_stdid == (0x200 + (controller_id_ as u16)){
             return BlMdStatus{
