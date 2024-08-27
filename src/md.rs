@@ -45,13 +45,14 @@ pub fn send_pwm(handle_: &DeviceHandle<GlobalContext>, address_: u8, power_: i16
 }
 
 pub fn send_speed(handle_: &DeviceHandle<GlobalContext>, address_: u8, velocity_: i16) -> MdStatus{
+    let velocity_abs = velocity_.abs();
     let send_buf: [u8; 8] = [
         address_,
         IdType::MASTER,
         Mode::SPEED,
         if velocity_ >= 0 {0} else {1},
-        ((velocity_ >> 8) & 0xff) as u8,
-        (velocity_ & 0xff) as u8,
+        ((velocity_abs >> 8) & 0xff) as u8,
+        (velocity_abs & 0xff) as u8,
         0,
         0
     ];
@@ -60,13 +61,14 @@ pub fn send_speed(handle_: &DeviceHandle<GlobalContext>, address_: u8, velocity_
 }
 
 pub fn send_angle(handle_: &DeviceHandle<GlobalContext>, address_: u8, angle_: i16) -> MdStatus{
+    let angle_abs = angle_.abs();
     let send_buf: [u8; 8] = [
         address_,
         IdType::MASTER,
         Mode::SPEED,
         if angle_ >= 0 {0} else {1},
-        ((angle_ >> 8) & 0xff) as u8,
-        (angle_ & 0xff) as u8,
+        ((angle_abs >> 8) & 0xff) as u8,
+        (angle_abs & 0xff) as u8,
         0,
         0
     ];

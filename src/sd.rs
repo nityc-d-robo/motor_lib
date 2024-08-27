@@ -27,13 +27,14 @@ pub struct SdStatus {
 }
 
 pub fn send_power(handle_: &DeviceHandle<GlobalContext>, address_: u8, port_: u8, power_: i16) -> SdStatus{
+    let power_abs = power_.abs();
     let send_buf: [u8; 8] = [
         address_ | IdType::SD,
         IdType::MASTER,
         Mode::SINGLE_POWER,
         port_,
-        ((power_ >> 8) & 0xff) as u8,
-        (power_ & 0xff) as u8,
+        ((power_abs >> 8) & 0xff) as u8,
+        (power_abs & 0xff) as u8,
         0,
         0
     ];
@@ -42,15 +43,18 @@ pub fn send_power(handle_: &DeviceHandle<GlobalContext>, address_: u8, port_: u8
 }
 
 pub fn send_powers(handle_: &DeviceHandle<GlobalContext>, address_: u8, power0_: i16, power1_ :i16) -> SdStatus{
+    let power0_abs = power0_.abs();
+    let power1_abs = power1_.abs();
+
     let send_buf: [u8; 8] = [
         address_ | IdType::SD,
         IdType::MASTER,
         Mode::POWER,
         0,
-        ((power0_ >> 8) & 0xff) as u8,
-        (power0_ & 0xff) as u8,
-        ((power1_ >> 8) & 0xff) as u8,
-        (power1_ & 0xff) as u8,
+        ((power0_abs >> 8) & 0xff) as u8,
+        (power0_abs & 0xff) as u8,
+        ((power1_abs >> 8) & 0xff) as u8,
+        (power1_abs & 0xff) as u8,
     ];
     handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
     return receive_status(handle_, address_)
