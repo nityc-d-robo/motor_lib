@@ -68,3 +68,44 @@ pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, controller_id_: u8)
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{init_usb_handle, send_emergency, blmd};
+
+    use advanced_pid::{prelude::*, PidConfig, VelPid};
+    use std::{time::Duration, thread::sleep};
+
+    #[test]
+    fn motor_rotation() {
+        let handle = init_usb_handle(0x483, 0x5740, 1);
+        // エラーハンドリング
+        let return_status = 
+            loop {
+                match blmd::send_current(&handle, 1, 1000) {
+                    Ok(t) => {
+                        // エラー処理解除
+                        break t
+                    },
+                    Err(_) => {
+                        // 何らかのエラー処理
+                    }
+                };
+            };
+        println!("power: 1000, {:?}", return_status.current);
+        sleep(Duration::from_millis(10));
+        send_emergency(&handle);
+    }
+    
+    #[test]
+    fn speed_pid() {
+        let handle = init_usb_handle(0x483, 0x5740, 1);
+        let config = PidConfig::new(1.0, 0.1, 0.1).with_limits(-16384.0, 16384.0);
+        let mut pid = VelPid::new(config);
+        for _i in (0..=100).step_by(1){
+            blmd::send_velocity(&handle, &mut pid, 2, 500).unwrap();
+            sleep(Duration::from_millis(10));
+        }
+        send_emergency(&handle);
+    }
+}
