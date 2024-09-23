@@ -5,6 +5,7 @@ pub mod md;
 pub mod sd;
 pub mod smd;
 pub mod blmd;
+pub mod sr;
 
 #[allow(non_snake_case)]
 pub mod IdType {
