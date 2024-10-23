@@ -78,10 +78,10 @@ pub fn send_angle(handle_: &DeviceHandle<GlobalContext>, address_: u8, angle_: i
 
 #[allow(unused_variables)]
 pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, address_: u8) -> Result<MdStatus, Error>{
-    let receive_buf = [0;8]; // MD側がデータ返送に対応するまでの仮実装
+    let mut receive_buf = [0;8]; // MD側がデータ返送に対応するまでの仮実装
     loop {
-        // handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
-        // if address_ == receive_buf[0] {
+        handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
+        if address_ == receive_buf[0] {
             return Ok(MdStatus{
                 address: receive_buf[0],
                 semi_id: receive_buf[1],
@@ -92,6 +92,30 @@ pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, address_: u8) -> Re
                     limsw_1: receive_buf[7] == 1,
                 }
             });
-        // }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{init_usb_handle, md};
+
+    #[test]
+    fn motor_rotation() {
+        let handle = init_usb_handle(0x483, 0x5740, 1);
+        // エラーハンドリング
+        let return_status = 
+            loop {
+                match md::send_pwm(&handle, 0, 1000) {
+                    Ok(t) => {
+                        println!("{:?}", t.speed);
+                        break t
+                    },
+                    Err(_) => {
+                        // 何らかのエラー処理
+                    }
+                };
+            };
+        println!("{:?}", return_status);
     }
 }
