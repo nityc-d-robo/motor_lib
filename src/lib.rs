@@ -25,11 +25,19 @@ pub mod EndPont {
     pub static EP1: u8 = 1;
 }
 
-pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) -> DeviceHandle<GlobalContext>{
-    let handle = open_device_with_vid_pid(vendor_id, product_id).unwrap();
+pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) -> Result<DeviceHandle<GlobalContext>, rusb::Error>{
+    let handle = loop {
+        match open_device_with_vid_pid(vendor_id, product_id) {
+            Some(t) => break t,
+            None => {
+                eprintln!("usb_can_hardware not detected.");
+                std::thread::sleep(core::time::Duration::from_secs(1));
+            }
+        }
+    };
     handle.set_auto_detach_kernel_driver(true).unwrap_or(());
-    handle.claim_interface(b_interface_number).unwrap();
-    return handle
+    handle.claim_interface(b_interface_number)?;
+    return Ok(handle);
 }
 
 pub fn send_emergency(handle_: &DeviceHandle<GlobalContext>){

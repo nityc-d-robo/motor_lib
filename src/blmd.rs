@@ -78,7 +78,7 @@ mod tests {
 
     #[test]
     fn motor_rotation() {
-        let handle = init_usb_handle(0x483, 0x5740, 1);
+        let handle = init_usb_handle(0x483, 0x5740, 1).unwrap();
         // エラーハンドリング
         let return_status = 
             loop {
@@ -99,7 +99,7 @@ mod tests {
     
     #[test]
     fn speed_pid() {
-        let handle = init_usb_handle(0x483, 0x5740, 1);
+        let handle = init_usb_handle(0x483, 0x5740, 1).unwrap();
         let config = PidConfig::new(1.0, 0.1, 0.1).with_limits(-16384.0, 16384.0);
         let mut pid = VelPid::new(config);
         for _i in (0..=100).step_by(1){
