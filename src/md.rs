@@ -76,6 +76,21 @@ pub fn send_angle(handle_: &DeviceHandle<GlobalContext>, address_: u8, angle_: i
     return receive_status(handle_, address_)
 }
 
+pub fn send_limsw(handle_: &DeviceHandle<GlobalContext>, address_: u8, port_: u8, power_: i16, after_power_: i16) -> Result<MdStatus, Error>{
+    let send_buf: [u8; 8] = [
+        address_,
+        IdType::MASTER,
+        Mode::LIM_SW,
+        port_,
+        ((power_ >> 8) & 0xff) as u8,
+        (power_ & 0xff) as u8,
+        ((after_power_ >> 8) & 0xff) as u8,
+        (after_power_ & 0xff) as u8,
+    ];
+    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
+    return receive_status(handle_, address_)
+}
+
 #[allow(unused_variables)]
 pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, address_: u8) -> Result<MdStatus, Error>{
     let mut receive_buf = [0;8]; // MD側がデータ返送に対応するまでの仮実装
