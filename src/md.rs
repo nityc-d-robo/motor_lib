@@ -102,7 +102,7 @@ mod tests {
 
     #[test]
     fn motor_rotation() {
-        let handle = init_usb_handle(0x483, 0x5740, 1);
+        let handle = init_usb_handle(0x483, 0x5740, 1).unwrap();
         // エラーハンドリング
         let return_status = 
             loop {
