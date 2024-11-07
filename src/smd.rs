@@ -5,9 +5,9 @@ use crate::{IdType, EndPont};
 
 #[allow(non_snake_case)]
 pub mod Mode {
-    pub static STATUS: u8 = 0;
-    pub static ANGLE: u8 = 1;
-    pub static ANGLES: u8 = 2;
+    pub const STATUS: u8 = 0;
+    pub const ANGLE: u8 = 1;
+    pub const ANGLES: u8 = 2;
 }
 
 #[derive(Debug)]
