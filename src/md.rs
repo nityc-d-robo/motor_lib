@@ -67,7 +67,8 @@ pub fn send_speed(handle_: &DeviceHandle<GlobalContext>, address_: u8, velocity_
         0,
         0
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
+        handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000))?;
+    }
     return receive_status(handle_, address_)
 }
 
