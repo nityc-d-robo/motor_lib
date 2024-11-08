@@ -53,6 +53,9 @@ pub fn send_pwm(handle_: &DeviceHandle<GlobalContext>, address_: u8, power_: i16
 }
 
 pub fn send_speed(handle_: &DeviceHandle<GlobalContext>, address_: u8, velocity_: i16) -> Result<MdStatus, Error>{
+    if velocity_ == 0 {
+        send_pwm(handle_, address_, 0)?;
+    } else {
     let count = rpm_to_count(velocity_);
     let send_buf: [u8; 8] = [
         address_,
