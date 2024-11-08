@@ -28,8 +28,16 @@ pub struct MdStatus {
     pub limsw: LimSwStatus,
 }
 
+fn rpm_to_count(rpm: i16) -> i16 {
+    let count = 8192.0 * (rpm as f64) / (12.0 * 1000.0);
+    return count.round() as i16
+}
+fn count_to_rpm(rpm: i16) -> i16 {
+    let rpm = (12.0 * 1000.0 * rpm as f64) / 8192.0;
+    return rpm.round() as i16
+}
+
 pub fn send_pwm(handle_: &DeviceHandle<GlobalContext>, address_: u8, power_: i16) -> Result<MdStatus, Error>{
-    let power_abs = power_.abs();
     let send_buf: [u8; 8] = [
         address_,
         IdType::MASTER,
@@ -45,14 +53,14 @@ pub fn send_pwm(handle_: &DeviceHandle<GlobalContext>, address_: u8, power_: i16
 }
 
 pub fn send_speed(handle_: &DeviceHandle<GlobalContext>, address_: u8, velocity_: i16) -> Result<MdStatus, Error>{
-    let velocity_abs = velocity_.abs();
+    let count = rpm_to_count(velocity_);
     let send_buf: [u8; 8] = [
         address_,
         IdType::MASTER,
         Mode::SPEED,
         0,
-        ((velocity_ >> 8) & 0xff) as u8,
-        (velocity_ & 0xff) as u8,
+        ((count >> 8) & 0xff) as u8,
+        (count & 0xff) as u8,
         0,
         0
     ];
@@ -97,11 +105,12 @@ pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, address_: u8) -> Re
     loop {
         handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
         if address_ == receive_buf[0] {
+            let rpm = count_to_rpm((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16));
             return Ok(MdStatus{
                 address: receive_buf[0],
                 semi_id: receive_buf[1],
                 angle: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
-                speed: ((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16)),
+                speed: rpm,
                 limsw: LimSwStatus{
                     limsw_0: receive_buf[6] == 1,
                     limsw_1: receive_buf[7] == 1,
@@ -121,7 +130,7 @@ mod tests {
         // エラーハンドリング
         let return_status = 
             loop {
-                match md::send_speed(&handle, 0x00, -20) {
+                match md::send_speed(&handle, 0x00, 400) {
                     Ok(t) => {
                         break t
                     },
