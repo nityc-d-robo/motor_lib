@@ -34,9 +34,9 @@ pub fn send_pwm(handle_: &DeviceHandle<GlobalContext>, address_: u8, power_: i16
         address_,
         IdType::MASTER,
         Mode::PWM,
-        if power_ >= 0 {0} else {1},
-        ((power_abs >> 8) & 0xff) as u8,
-        (power_abs & 0xff) as u8,
+        0,
+        ((power_ >> 8) & 0xff) as u8,
+        (power_ & 0xff) as u8,
         0,
         0
     ];
@@ -50,9 +50,9 @@ pub fn send_speed(handle_: &DeviceHandle<GlobalContext>, address_: u8, velocity_
         address_,
         IdType::MASTER,
         Mode::SPEED,
-        if velocity_ >= 0 {0} else {1},
-        ((velocity_abs >> 8) & 0xff) as u8,
-        (velocity_abs & 0xff) as u8,
+        0,
+        ((velocity_ >> 8) & 0xff) as u8,
+        (velocity_ & 0xff) as u8,
         0,
         0
     ];
@@ -95,7 +95,7 @@ pub fn send_limsw(handle_: &DeviceHandle<GlobalContext>, address_: u8, port_: u8
 pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, address_: u8) -> Result<MdStatus, Error>{
     let mut receive_buf = [0;8]; // MD側がデータ返送に対応するまでの仮実装
     loop {
-        // handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
+        handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
         if address_ == receive_buf[0] {
             return Ok(MdStatus{
                 address: receive_buf[0],
@@ -121,9 +121,8 @@ mod tests {
         // エラーハンドリング
         let return_status = 
             loop {
-                match md::send_pwm(&handle, 0, 1000) {
+                match md::send_speed(&handle, 0x00, -20) {
                     Ok(t) => {
-                        println!("{:?}", t.speed);
                         break t
                     },
                     Err(_) => {
@@ -132,5 +131,9 @@ mod tests {
                 };
             };
         println!("{:?}", return_status);
+        loop {
+            let return_status = md::receive_status(&handle, 0x00).unwrap();
+            println!("{:?}", return_status);
+        }
     }
 }
