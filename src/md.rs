@@ -122,7 +122,9 @@ pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, address_: u8) -> Re
 
 #[cfg(test)]
 mod tests {
-    use crate::{init_usb_handle, md};
+    use std::{thread, time::Duration};
+
+    use crate::{init_usb_handle, md, send_emergency};
 
     #[test]
     fn motor_rotation() {
@@ -144,5 +146,24 @@ mod tests {
             let return_status = md::receive_status(&handle, 0x00).unwrap();
             println!("{:?}", return_status);
         }
+    }
+    #[test]
+    fn omni_control_test() {
+        let handle = init_usb_handle(0x483, 0x5740, 1).unwrap();
+        // エラーハンドリング
+        for i in 0..500 {
+            println!("{i}");
+            let return_status = md::send_speed(&handle, 0x00, i).unwrap();
+            let return_status = md::send_speed(&handle, 0x01, i).unwrap();
+            let return_status = md::send_speed(&handle, 0x02, i).unwrap();
+            println!("{:?}", return_status);
+            thread::sleep(Duration::from_millis(100));
+        }
+        send_emergency(&handle);
+    }
+    #[test]
+    fn stop_all() {
+        let handle = init_usb_handle(0x483, 0x5740, 1).unwrap();
+        send_emergency(&handle);
     }
 }
