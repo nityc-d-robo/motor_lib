@@ -5,10 +5,10 @@ use crate::{IdType, EndPont};
 
 #[allow(non_snake_case)]
 pub mod Mode {
-    pub static STATUS: u8 = 0;
-    pub static POWER: u8 = 1;
-    pub static LIM_SW: u8 = 2;
-    pub static SINGLE_POWER: u8 = 3;
+    pub const STATUS: u8 = 0;
+    pub const POWER: u8 = 1;
+    pub const LIM_SW: u8 = 2;
+    pub const SINGLE_POWER: u8 = 3;
 }
 
 #[derive(Debug)]
