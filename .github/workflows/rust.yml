@@ -33,7 +33,7 @@ jobs:
       - name: Deploy
         uses: actions/upload-pages-artifact@v1
         with:
-          path: target/doc/motor_lib
+          path: target/doc/
   deploy:
     needs: doc
     permissions:
