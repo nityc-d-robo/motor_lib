@@ -157,8 +157,8 @@ mod tests {
         // エラーハンドリング
         for i in 0..500 {
             println!("{i}");
-            let return_status = md::send_speed(&handle, 0x00, i).unwrap();
-            let return_status = md::send_speed(&handle, 0x01, i).unwrap();
+            let _ = md::send_speed(&handle, 0x00, i).unwrap();
+            let _ = md::send_speed(&handle, 0x01, i).unwrap();
             let return_status = md::send_speed(&handle, 0x02, i).unwrap();
             println!("{:?}", return_status);
             thread::sleep(Duration::from_millis(100));
