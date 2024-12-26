@@ -25,6 +25,8 @@ pub mod EndPont {
     pub static EP1: u8 = 1;
 }
 
+/// Initializes the USB device with the specified vid, pid, and b_interface_number.  
+/// It is recommended to set b_interface_number to 1.
 pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) -> Result<DeviceHandle<GlobalContext>, rusb::Error>{
     let handle = loop {
         match open_device_with_vid_pid(vendor_id, product_id) {
@@ -40,6 +42,8 @@ pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) 
     return Ok(handle);
 }
 
+/// Sends an emergency signal to the drobo CAN device (for example, MD, SD, etc.)   
+/// It's not possible to confirm whether the signal was sent properly, and this function always returns nothing.
 pub fn send_emergency(handle_: &DeviceHandle<GlobalContext>){
     let send_buf: [u8; 8] = [
         IdType::EMMERGENCY,
