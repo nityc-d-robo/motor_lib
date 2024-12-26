@@ -1,5 +1,5 @@
 use std::time::Duration;
-use rusb::{constants::{LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_OUT}, DeviceHandle, Error, GlobalContext};
+use rusb::{constants::LIBUSB_ENDPOINT_OUT, DeviceHandle, Error, GlobalContext};
 
 use crate::{IdType, EndPont};
 
