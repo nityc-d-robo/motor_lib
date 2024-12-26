@@ -26,6 +26,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run doc
         run: cargo doc --no-deps
+      - name: Move doc
+        run: |
+          mv target/doc/motor_lib/* target/doc/
+          rm -r target/doc/motor_lib
       - name: Deploy
         uses: actions/upload-pages-artifact@v1
         with:
