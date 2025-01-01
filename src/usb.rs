@@ -35,7 +35,7 @@ impl From<rusb::Error> for crate::USBError {
 pub trait USBHandleTrait {
     fn read_bulk(&self, data: &mut [u8], timeout: time::Duration)
         -> Result<usize, crate::USBError>;
-    fn write_bulk(&self, data: &[u8], timeout: time::Duration) -> Result<usize, crate::USBError>;
+    fn write_bulk(&mut self, data: &[u8], timeout: time::Duration) -> Result<usize, crate::USBError>;
 }
 impl USBHandleTrait for crate::USBHandle {
     fn read_bulk(
@@ -48,7 +48,7 @@ impl USBHandleTrait for crate::USBHandle {
             .map_err(crate::USBError::from);
         result
     }
-    fn write_bulk(&self, data: &[u8], timeout: time::Duration) -> Result<usize, crate::USBError> {
+    fn write_bulk(&mut self, data: &[u8], timeout: time::Duration) -> Result<usize, crate::USBError> {
         let result = HANDLE
             .write_bulk(LIBUSB_ENDPOINT_OUT | end_point::EP1, data, timeout)
             .map_err(crate::USBError::from);

@@ -17,7 +17,7 @@ pub struct SmdStatus {
 }
 
 pub fn send_angle(
-    handle_: &impl usb::USBHandleTrait,
+    handle_: &mut impl usb::USBHandleTrait,
     address_: u8,
     port_: u8,
     angle_: u8,
@@ -39,7 +39,7 @@ pub fn send_angle(
 }
 
 pub fn send_angles(
-    handle_: &impl usb::USBHandleTrait,
+    handle_: &mut impl usb::USBHandleTrait,
     address_: u8,
     angle0_: u8,
     angle1_: u8,
@@ -61,7 +61,7 @@ pub fn send_angles(
 }
 
 pub fn receive_status(
-    handle_: &impl usb::USBHandleTrait,
+    handle_: &mut impl usb::USBHandleTrait,
     address_: u8,
 ) -> Result<SmdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];

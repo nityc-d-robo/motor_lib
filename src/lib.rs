@@ -26,7 +26,7 @@ pub enum USBError {
 
 /// Sends an emergency signal to the drobo CAN device (for example, MD, SD, etc.)   
 /// It's not possible to confirm whether the signal was sent properly, and this function always returns nothing.
-pub fn send_emergency(handle_: &impl usb::USBHandleTrait) {
+pub fn send_emergency(handle_: &mut impl usb::USBHandleTrait) {
     let send_buf: [u8; 8] = [
         device_type::EMMERGENCY,
         device_type::MASTER,
