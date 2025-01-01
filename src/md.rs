@@ -47,7 +47,7 @@ pub struct MdStatus {
 /// }
 /// ```
 pub fn send_pwm(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     address_: u8,
     power_: i16,
 ) -> Result<MdStatus, crate::USBError> {
@@ -79,7 +79,7 @@ pub fn send_pwm(
 ///     Ok(())
 /// ```
 pub fn send_speed(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     address_: u8,
     velocity_: i16,
 ) -> Result<MdStatus, crate::USBError> {
@@ -102,7 +102,7 @@ pub fn send_speed(
 }
 
 pub fn send_angle(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     address_: u8,
     angle_: i16,
 ) -> Result<MdStatus, crate::USBError> {
@@ -125,7 +125,7 @@ pub fn send_angle(
 
 /// Sends a command to set the duty cycle on before and after pressing the limit switch.
 pub fn send_limsw(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     address_: u8,
     port_: u8,
     power_: i16,
@@ -164,7 +164,7 @@ pub fn send_limsw(
 /// }
 /// ```
 pub fn receive_status(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     address_: u8,
 ) -> Result<MdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];

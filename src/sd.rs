@@ -25,7 +25,7 @@ pub struct SdStatus {
 }
 
 pub fn send_power(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     address_: u8,
     port_: u8,
     power_: i16,
@@ -48,7 +48,7 @@ pub fn send_power(
 }
 
 pub fn send_powers(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     address_: u8,
     power0_: i16,
     power1_: i16,
@@ -73,7 +73,7 @@ pub fn send_powers(
 }
 
 pub fn receive_status(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     address_: u8,
 ) -> Result<SdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];

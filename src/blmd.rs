@@ -19,7 +19,7 @@ pub struct BlMdStatus {
 }
 
 pub fn send_velocity(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     pid_: &mut VelPid,
     controller_id_: u8,
     velocity_: i16,
@@ -38,7 +38,7 @@ pub fn send_velocity(
 }
 
 pub fn send_current(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     controller_id_: u8,
     current_: i16,
 ) -> Result<BlMdStatus, crate::USBError> {
@@ -59,7 +59,7 @@ pub fn send_current(
 }
 
 pub fn receive_status(
-    handle_: &mut impl usb::USBHandleTrait,
+    handle_: &impl usb::USBHandleTrait,
     controller_id_: u8,
 ) -> Result<BlMdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];
