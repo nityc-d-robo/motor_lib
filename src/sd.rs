@@ -29,7 +29,7 @@ pub fn send_power(
     address_: u8,
     port_: u8,
     power_: i16,
-) -> Result<SdStatus, usb::USBError> {
+) -> Result<SdStatus, crate::USBError> {
     let power_abs = power_.abs();
     let send_buf: [u8; 8] = [
         address_ | device_type::SD,
@@ -52,7 +52,7 @@ pub fn send_powers(
     address_: u8,
     power0_: i16,
     power1_: i16,
-) -> Result<SdStatus, usb::USBError> {
+) -> Result<SdStatus, crate::USBError> {
     let power0_abs = power0_.abs();
     let power1_abs = power1_.abs();
 
@@ -75,7 +75,7 @@ pub fn send_powers(
 pub fn receive_status(
     handle_: &impl usb::USBHandleTrait,
     address_: u8,
-) -> Result<SdStatus, usb::USBError> {
+) -> Result<SdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];
     loop {
         handle_

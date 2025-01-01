@@ -23,7 +23,7 @@ pub fn send_velocity(
     pid_: &mut VelPid,
     controller_id_: u8,
     velocity_: i16,
-) -> Result<BlMdStatus, usb::USBError> {
+) -> Result<BlMdStatus, crate::USBError> {
     let status = match receive_status(handle_, controller_id_) {
         Ok(s) => s,
         Err(e) => return Err(e),
@@ -41,7 +41,7 @@ pub fn send_current(
     handle_: &impl usb::USBHandleTrait,
     controller_id_: u8,
     current_: i16,
-) -> Result<BlMdStatus, usb::USBError> {
+) -> Result<BlMdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
         0x30,
         0,
@@ -61,7 +61,7 @@ pub fn send_current(
 pub fn receive_status(
     handle_: &impl usb::USBHandleTrait,
     controller_id_: u8,
-) -> Result<BlMdStatus, usb::USBError> {
+) -> Result<BlMdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];
     loop {
         match handle_.read_bulk(&mut receive_buf, Duration::from_millis(5000)) {

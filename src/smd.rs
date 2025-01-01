@@ -21,7 +21,7 @@ pub fn send_angle(
     address_: u8,
     port_: u8,
     angle_: u8,
-) -> Result<SmdStatus, usb::USBError> {
+) -> Result<SmdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
         address_ | device_type::SMD,
         device_type::MASTER,
@@ -43,7 +43,7 @@ pub fn send_angles(
     address_: u8,
     angle0_: u8,
     angle1_: u8,
-) -> Result<SmdStatus, usb::USBError> {
+) -> Result<SmdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
         address_ | device_type::SD,
         device_type::MASTER,
@@ -63,7 +63,7 @@ pub fn send_angles(
 pub fn receive_status(
     handle_: &impl usb::USBHandleTrait,
     address_: u8,
-) -> Result<SmdStatus, usb::USBError> {
+) -> Result<SmdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];
     loop {
         handle_

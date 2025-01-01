@@ -18,6 +18,12 @@ pub mod device_type {
     pub const EMMERGENCY: u8 = 0xf0;
 }
 
+pub struct USBHandle;
+#[derive(Debug)]
+pub enum USBError {
+    RUsbError(rusb::Error),
+}
+
 /// Sends an emergency signal to the drobo CAN device (for example, MD, SD, etc.)   
 /// It's not possible to confirm whether the signal was sent properly, and this function always returns nothing.
 pub fn send_emergency(handle_: &impl usb::USBHandleTrait) {
