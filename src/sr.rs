@@ -1,10 +1,8 @@
 use std::time::Duration;
-use rusb::{constants::LIBUSB_ENDPOINT_OUT, DeviceHandle, GlobalContext};
 
-use crate::{IdType, EndPont};
+use crate::{device_type, usb};
 
-#[allow(non_snake_case)]
-pub mod Mode {
+pub mod mode {
     pub const STATUS: u8 = 0;
     pub const STOP: u8 = 1;
     pub const START: u8 = 2;
@@ -27,42 +25,55 @@ pub struct SrStatus {
     pub freq: f32,
 }
 
-pub fn send_stop(handle_: &DeviceHandle<GlobalContext>) {
+pub fn send_stop(handle_: &impl usb::USBHandleTrait) {
     let send_buf: [u8; 8] = [
-        IdType::SR,
-        IdType::MASTER,
-        Mode::STOP,
+        device_type::SR,
+        device_type::MASTER,
+        mode::STOP,
         0,
         0,
         0,
         0,
-        0
+        0,
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
+    handle_
+        .write_bulk(&send_buf, Duration::from_millis(5000))
+        .unwrap();
 }
-pub fn send_start(handle_: &DeviceHandle<GlobalContext>, timeout: u16) {
+pub fn send_start(handle_: &impl usb::USBHandleTrait, timeout: u16) {
     let send_buf: [u8; 8] = [
-        IdType::SR,
-        IdType::MASTER,
-        Mode::START,
+        device_type::SR,
+        device_type::MASTER,
+        mode::START,
         0,
         0,
         0,
         0,
-        0
+        0,
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(timeout.into())).unwrap();
+    handle_
+        .write_bulk(&send_buf, Duration::from_millis(timeout.into()))
+        .unwrap();
 }
-pub fn send_colors(handle_: &DeviceHandle<GlobalContext>, red: u8, green: u8, blue: u8, freq: f32, timeout: u16) {
+pub fn send_colors(
+    handle_: &impl usb::USBHandleTrait,
+    red: u8,
+    green: u8,
+    blue: u8,
+    freq: f32,
+    timeout: u16,
+) {
     let send_buf: [u8; 8] = [
-        IdType::SR,
-        IdType::MASTER,
-        Mode::COLOR,
+        device_type::SR,
+        device_type::MASTER,
+        mode::COLOR,
         0,
         green,
         red,
         blue,
-        (freq * 4.0) as u8
+        (freq * 4.0) as u8,
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(timeout.into())).unwrap();
+    handle_
+        .write_bulk(&send_buf, Duration::from_millis(timeout.into()))
+        .unwrap();
 }
