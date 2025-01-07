@@ -244,7 +244,7 @@ pub fn send_limsw(
 ///     md::send_speed(&handle, 0x00, 100)?;
 ///     std::thread::sleep(Duration::from_secs(1));
 ///     let status = md::receive_status(&handle, 0x00)?;
-///     // 値が一定の範囲に収まっていれば成功というような処理
+///     println!("{:?}", status);
 ///     Ok(())
 /// }
 /// ```
