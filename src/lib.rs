@@ -5,7 +5,7 @@ pub mod md;
 pub mod sd;
 pub mod smd;
 pub mod sr;
-mod usb;
+pub mod usb;
 
 pub mod device_type {
     pub const MD: u8 = 0x00;
