@@ -1,3 +1,5 @@
+//! This module provides functions to control SD devices using USB communication.
+
 use std::time::Duration;
 
 use crate::{device_type, usb};
@@ -25,7 +27,20 @@ pub struct SdStatus {
 }
 
 /// Sends a command to set the solenoid state on the specified SD port.
-/// ## Example
+/// 
+/// # Arguments
+/// 
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the SD device.
+/// * `port` - The port number.
+/// * `power` - The power to set.
+/// 
+/// # Returns
+/// 
+/// A result containing the status of the SD device or a USBError.
+/// 
+/// # Example
+/// 
 /// Sets the state of the solenoid connected to port 0 of SD at address 0x10 to HIGH.
 /// It is recommended that the number set to the `power` argument be 0 or 1000.
 /// ```rust
@@ -60,7 +75,20 @@ pub fn send_power(
 }
 
 /// Sends a command to set the solenoid state on the specified SD.
-/// ## Example
+/// 
+/// # Arguments
+/// 
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the SD device.
+/// * `power_0` - The power to set for port 0.
+/// * `power_1` - The power to set for port 1.
+/// 
+/// # Returns
+/// 
+/// A result containing the status of the SD device or a USBError.
+/// 
+/// # Example
+/// 
 /// Sets the state of solenoids connected to ports 0 and 1 of SD to LOW and HIGH.
 /// It is recommended that the number set to the `power_0` and `power_1` arguments be 0 or 1000.
 /// ```rust
@@ -97,7 +125,18 @@ pub fn send_powers(
 }
 
 /// Receive a data from the specified SD device.
-/// ## Example
+/// 
+/// # Arguments
+/// 
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the SD device.
+/// 
+/// # Returns
+/// 
+/// A result containing the status of the SD device or a USBError.
+/// 
+/// # Example
+/// 
 /// Sample code to retrieve status data from the SD at address 0x10.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, sd};

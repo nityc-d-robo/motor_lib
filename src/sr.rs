@@ -1,3 +1,5 @@
+//! This module provides functions to control SR devices using USB communication.
+
 use std::time::Duration;
 
 use crate::{device_type, usb};
@@ -26,7 +28,13 @@ pub struct SrStatus {
 }
 
 /// Sends a stop command to the SR device.
-/// ## Example
+/// 
+/// # Arguments
+/// 
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// 
+/// # Example
+/// 
 /// Sample code to send a stop command to the SR device.
 /// ```rust
 /// use motor_lib::{USBHandle, sr};
@@ -52,7 +60,14 @@ pub fn send_stop(handle: &impl usb::USBHandleTrait) {
 }
 
 /// Sends a start command to the SR device with a specified timeout.
-/// ## Example
+/// 
+/// # Arguments
+/// 
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `timeout` - The duration to wait for the operation to complete.
+/// 
+/// # Example
+/// 
 /// Sample code to send a start command to the SR device with a timeout of 1000 milliseconds.
 /// ```rust
 /// use motor_lib::{USBHandle, sr};
@@ -78,7 +93,18 @@ pub fn send_start(handle: &impl usb::USBHandleTrait, timeout: u16) {
 }
 
 /// Sends color settings to the LED strip connected to the SR device.
-/// ## Example
+/// 
+/// # Arguments
+/// 
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `red` - The red color intensity.
+/// * `green` - The green color intensity.
+/// * `blue` - The blue color intensity.
+/// * `freq` - The frequency of the color change.
+/// * `timeout` - The duration to wait for the operation to complete.
+/// 
+/// # Example
+/// 
 /// Sample code to set the color of the LED strip connected to the SR device to red, green, and blue with a timeout of 1000 milliseconds.
 /// ```rust
 /// use motor_lib::{USBHandle, sr};
