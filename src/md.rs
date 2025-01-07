@@ -102,6 +102,17 @@ pub fn send_speed(
     return receive_status(handle, address);
 }
 
+/// Sends a command to set the angle on the specified MD device.
+/// ## Example
+/// Sample code to set the angle of a motor connected to the MD at address 0x00 to 90 degrees.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, md};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     md::send_angle(&handle, 0x00, 90)?;
+///     Ok(())
+/// }
+/// ```
 pub fn send_angle(
     handle: &impl usb::USBHandleTrait,
     address: u8,
@@ -125,6 +136,16 @@ pub fn send_angle(
 }
 
 /// Sends a command to set the duty cycle on before and after pressing the limit switch.
+/// ## Example
+/// Sample code to set the duty cycle before and after pressing the limit switch on the MD at address 0x00.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, md};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     md::send_limsw(&handle, 0x00, 1, 1000, 500)?;
+///     Ok(())
+/// }
+/// ```
 pub fn send_limsw(
     handle: &impl usb::USBHandleTrait,
     address: u8,

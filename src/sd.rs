@@ -27,10 +27,9 @@ pub struct SdStatus {
 /// Sends a command to set the solenoid state on the specified SD port.
 /// ## Example
 /// Sets the state of the solenoid connected to port 0 of SD at address 0x10 to HIGH.
-/// It is recommended that the number set to the `power_` argument be 0 or 1000.
+/// It is recommended that the number set to the `power` argument be 0 or 1000.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, sd};
-/// use std::time::Duration;
 /// fn main() -> Result<(), USBError> {
 ///     let handle = USBHandle;
 ///     sd::send_power(&handle, 0x10, 0, 1000)?;
@@ -63,10 +62,9 @@ pub fn send_power(
 /// Sends a command to set the solenoid state on the specified SD.
 /// ## Example
 /// Sets the state of solenoids connected to ports 0 and 1 of SD to LOW and HIGH.
-/// It is recommended that the number set to the `power_` argument be 0 or 1000.
+/// It is recommended that the number set to the `power_0` and `power_1` arguments be 0 or 1000.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, sd};
-/// use std::time::Duration;
 /// fn main() -> Result<(), USBError> {
 ///     let handle = USBHandle;
 ///     sd::send_powers(&handle, 0x10, 0, 1000)?;
@@ -98,6 +96,18 @@ pub fn send_powers(
     return receive_status(handle, address);
 }
 
+/// Receive a data from the specified SD device.
+/// ## Example
+/// Sample code to retrieve status data from the SD at address 0x10.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, sd};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     let status = sd::receive_status(&handle, 0x10)?;
+///     println!("{:?}", status);
+///     Ok(())
+/// }
+/// ```
 pub fn receive_status(
     handle: &impl usb::USBHandleTrait,
     address: u8,

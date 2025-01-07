@@ -16,6 +16,17 @@ pub struct SmdStatus {
     pub speed: i16,
 }
 
+/// Sends a command to set the angle on the specified SMD device.
+/// ## Example
+/// Sample code to set the angle of a motor connected to the SMD at address 0x20 and port 1 to 45 degrees.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, smd};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     smd::send_angle(&handle, 0x20, 1, 45)?;
+///     Ok(())
+/// }
+/// ```
 pub fn send_angle(
     handle: &impl usb::USBHandleTrait,
     address: u8,
@@ -38,6 +49,17 @@ pub fn send_angle(
     return receive_status(handle, address);
 }
 
+/// Sends a command to set angles on the specified SMD device.
+/// ## Example
+/// Sample code to set angles of motors connected to the SMD at address 0x20, port 0 to 30 degrees and port 1 to 60 degrees.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, smd};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     smd::send_angles(&handle, 0x20, 30, 60)?;
+///     Ok(())
+/// }
+/// ```
 pub fn send_angles(
     handle: &impl usb::USBHandleTrait,
     address: u8,
@@ -60,6 +82,18 @@ pub fn send_angles(
     return receive_status(handle, address);
 }
 
+/// Receive a data from the specified SMD device.
+/// ## Example
+/// Sample code to retrieve status data from the SMD at address 0x20.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, smd};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     let status = smd::receive_status(&handle, 0x20)?;
+///     println!("{:?}", status);
+///     Ok(())
+/// }
+/// ```
 pub fn receive_status(
     handle: &impl usb::USBHandleTrait,
     address: u8,
