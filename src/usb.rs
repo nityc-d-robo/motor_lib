@@ -32,11 +32,35 @@ impl From<rusb::Error> for crate::USBError {
     }
 }
 
+/// A trait defining the interface for USB handle operations.
 pub trait USBHandleTrait {
+    /// Reads data from a USB device using bulk transfer.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - A mutable slice to store the data read from the device.
+    /// * `timeout` - The duration to wait for the operation to complete.
+    ///
+    /// # Returns
+    ///
+    /// A result containing the number of bytes read or a USBError.
     fn read_bulk(&self, data: &mut [u8], timeout: time::Duration)
         -> Result<usize, crate::USBError>;
+
+    /// Writes data to a USB device using bulk transfer.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - A slice containing the data to write to the device.
+    /// * `timeout` - The duration to wait for the operation to complete.
+    ///
+    /// # Returns
+    ///
+    /// A result containing the number of bytes written or a USBError.
     fn write_bulk(&self, data: &[u8], timeout: time::Duration) -> Result<usize, crate::USBError>;
 }
+
+/// Implementation of the USBHandleTrait for the USBHandle struct.
 impl USBHandleTrait for crate::USBHandle {
     fn read_bulk(
         &self,
@@ -48,6 +72,7 @@ impl USBHandleTrait for crate::USBHandle {
             .map_err(crate::USBError::from);
         result
     }
+
     fn write_bulk(&self, data: &[u8], timeout: time::Duration) -> Result<usize, crate::USBError> {
         let result = HANDLE
             .write_bulk(LIBUSB_ENDPOINT_OUT | end_point::EP1, data, timeout)
