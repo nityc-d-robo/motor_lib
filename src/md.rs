@@ -77,6 +77,7 @@ pub fn send_pwm(
 ///     let handle = USBHandle;
 ///     md::send_speed(&handle, 0x00, 100)?;
 ///     Ok(())
+/// }
 /// ```
 pub fn send_speed(
     handle_: &impl usb::USBHandleTrait,

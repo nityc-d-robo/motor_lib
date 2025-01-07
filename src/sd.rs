@@ -24,6 +24,19 @@ pub struct SdStatus {
     pub limsw: LimSwStatus,
 }
 
+/// Sends a command to set the solenoid state on the specified SD port.
+/// ## Example
+/// Sets the state of the solenoid connected to port 0 of SD at address 0x10 to HIGH.
+/// It is recommended that the number set to the `power_` argument be 0 or 1000.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, sd};
+/// use std::time::Duration;
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     sd::send_power(&handle, 0x10, 0, 1000)?;
+///     Ok(())
+/// }
+/// ```
 pub fn send_power(
     handle_: &impl usb::USBHandleTrait,
     address_: u8,
@@ -47,6 +60,19 @@ pub fn send_power(
     return receive_status(handle_, address_);
 }
 
+/// Sends a command to set the solenoid state on the specified SD.
+/// ## Example
+/// Sets the state of solenoids connected to ports 0 and 1 of SD to LOW and HIGH.
+/// It is recommended that the number set to the `power_` argument be 0 or 1000.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, sd};
+/// use std::time::Duration;
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     sd::send_powers(&handle, 0x10, 0, 1000)?;
+///     Ok(())
+/// }
+/// ```
 pub fn send_powers(
     handle_: &impl usb::USBHandleTrait,
     address_: u8,
