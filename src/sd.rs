@@ -19,8 +19,8 @@ pub struct LimSwStatus {
 pub struct SdStatus {
     pub address: u8,
     pub semi_id: u8,
-    pub angle: i16,
-    pub speed: i16,
+    pub port_0: i16,
+    pub port_1: i16,
     pub limsw: LimSwStatus,
 }
 
@@ -111,8 +111,8 @@ pub fn receive_status(
             return Ok(SdStatus {
                 address: receive_buf[0],
                 semi_id: receive_buf[1],
-                angle: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
-                speed: ((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16)),
+                port_0: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
+                port_1: ((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16)),
                 limsw: LimSwStatus {
                     limsw_0: receive_buf[6] == 1,
                     limsw_1: receive_buf[7] == 1,
