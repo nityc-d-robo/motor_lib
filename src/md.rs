@@ -47,24 +47,24 @@ pub struct MdStatus {
 /// }
 /// ```
 pub fn send_pwm(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
-    power_: i16,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    power: i16,
 ) -> Result<MdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
-        address_,
+        address,
         device_type::MASTER,
         mode::PWM,
         0,
-        ((power_ >> 8) & 0xff) as u8,
-        (power_ & 0xff) as u8,
+        ((power >> 8) & 0xff) as u8,
+        (power & 0xff) as u8,
         0,
         0,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap();
-    return receive_status(handle_, address_);
+    return receive_status(handle, address);
 }
 
 /// Sends a command to set the rotation speed on the specified MD device.
@@ -80,72 +80,72 @@ pub fn send_pwm(
 /// }
 /// ```
 pub fn send_speed(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
-    velocity_: i16,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    velocity: i16,
 ) -> Result<MdStatus, crate::USBError> {
-    if velocity_ == 0 {
-        send_pwm(handle_, address_, 0)?;
+    if velocity == 0 {
+        send_pwm(handle, address, 0)?;
     } else {
         let send_buf: [u8; 8] = [
-            address_,
+            address,
             device_type::MASTER,
             mode::SPEED,
             0,
-            ((velocity_ >> 8) & 0xff) as u8,
-            (velocity_ & 0xff) as u8,
+            ((velocity >> 8) & 0xff) as u8,
+            (velocity & 0xff) as u8,
             0,
             0,
         ];
-        handle_.write_bulk(&send_buf, Duration::from_millis(5000))?;
+        handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
     }
-    return receive_status(handle_, address_);
+    return receive_status(handle, address);
 }
 
 pub fn send_angle(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
-    angle_: i16,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    angle: i16,
 ) -> Result<MdStatus, crate::USBError> {
-    let angle_abs = angle_.abs();
+    let angle_abs = angle.abs();
     let send_buf: [u8; 8] = [
-        address_,
+        address,
         device_type::MASTER,
         mode::SPEED,
-        if angle_ >= 0 { 0 } else { 1 },
+        if angle >= 0 { 0 } else { 1 },
         ((angle_abs >> 8) & 0xff) as u8,
         (angle_abs & 0xff) as u8,
         0,
         0,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap();
-    return receive_status(handle_, address_);
+    return receive_status(handle, address);
 }
 
 /// Sends a command to set the duty cycle on before and after pressing the limit switch.
 pub fn send_limsw(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
-    port_: u8,
-    power_: i16,
-    after_power_: i16,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    port: u8,
+    power: i16,
+    after_power: i16,
 ) -> Result<MdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
-        address_,
+        address,
         device_type::MASTER,
         mode::LIM_SW,
-        port_,
-        ((power_ >> 8) & 0xff) as u8,
-        (power_ & 0xff) as u8,
-        ((after_power_ >> 8) & 0xff) as u8,
-        (after_power_ & 0xff) as u8,
+        port,
+        ((power >> 8) & 0xff) as u8,
+        (power & 0xff) as u8,
+        ((after_power >> 8) & 0xff) as u8,
+        (after_power & 0xff) as u8,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap();
-    return receive_status(handle_, address_);
+    return receive_status(handle, address);
 }
 
 /// Receive a data from the specified MD device.
@@ -165,15 +165,15 @@ pub fn send_limsw(
 /// }
 /// ```
 pub fn receive_status(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
 ) -> Result<MdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];
     loop {
-        handle_
+        handle
             .read_bulk(&mut receive_buf, Duration::from_millis(5000))
             .unwrap();
-        if address_ == receive_buf[0] {
+        if address == receive_buf[0] {
             let rpm = (receive_buf[4] as i16) << 8 | (receive_buf[5] as i16);
             return Ok(MdStatus {
                 address: receive_buf[0],

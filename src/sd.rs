@@ -38,26 +38,26 @@ pub struct SdStatus {
 /// }
 /// ```
 pub fn send_power(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
-    port_: u8,
-    power_: i16,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    port: u8,
+    power: i16,
 ) -> Result<SdStatus, crate::USBError> {
-    let power_abs = power_.abs();
+    let power_abs = power.abs();
     let send_buf: [u8; 8] = [
-        address_ | device_type::SD,
+        address | device_type::SD,
         device_type::MASTER,
         mode::SINGLE_POWER,
-        port_,
+        port,
         ((power_abs >> 8) & 0xff) as u8,
         (power_abs & 0xff) as u8,
         0,
         0,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap();
-    return receive_status(handle_, address_);
+    return receive_status(handle, address);
 }
 
 /// Sends a command to set the solenoid state on the specified SD.
@@ -74,16 +74,16 @@ pub fn send_power(
 /// }
 /// ```
 pub fn send_powers(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
-    power0_: i16,
-    power1_: i16,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    power_0: i16,
+    power_1: i16,
 ) -> Result<SdStatus, crate::USBError> {
-    let power0_abs = power0_.abs();
-    let power1_abs = power1_.abs();
+    let power0_abs = power_0.abs();
+    let power1_abs = power_1.abs();
 
     let send_buf: [u8; 8] = [
-        address_ | device_type::SD,
+        address | device_type::SD,
         device_type::MASTER,
         mode::POWER,
         0,
@@ -92,22 +92,22 @@ pub fn send_powers(
         ((power1_abs >> 8) & 0xff) as u8,
         (power1_abs & 0xff) as u8,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap();
-    return receive_status(handle_, address_);
+    return receive_status(handle, address);
 }
 
 pub fn receive_status(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
 ) -> Result<SdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];
     loop {
-        handle_
+        handle
             .read_bulk(&mut receive_buf, Duration::from_millis(5000))
             .unwrap();
-        if (address_ | device_type::SD) == receive_buf[0] {
+        if (address | device_type::SD) == receive_buf[0] {
             return Ok(SdStatus {
                 address: receive_buf[0],
                 semi_id: receive_buf[1],

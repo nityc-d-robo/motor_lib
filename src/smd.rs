@@ -17,59 +17,59 @@ pub struct SmdStatus {
 }
 
 pub fn send_angle(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
-    port_: u8,
-    angle_: u8,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    port: u8,
+    angle: u8,
 ) -> Result<SmdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
-        address_ | device_type::SMD,
+        address | device_type::SMD,
         device_type::MASTER,
         mode::ANGLE,
-        port_,
-        angle_,
+        port,
+        angle,
         0,
         0,
         0,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap();
-    return receive_status(handle_, address_);
+    return receive_status(handle, address);
 }
 
 pub fn send_angles(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
-    angle0_: u8,
-    angle1_: u8,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    angle_0: u8,
+    angle_1: u8,
 ) -> Result<SmdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
-        address_ | device_type::SD,
+        address | device_type::SD,
         device_type::MASTER,
         mode::ANGLES,
         0,
-        angle0_,
-        angle1_,
+        angle_0,
+        angle_1,
         0,
         0,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap();
-    return receive_status(handle_, address_);
+    return receive_status(handle, address);
 }
 
 pub fn receive_status(
-    handle_: &impl usb::USBHandleTrait,
-    address_: u8,
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
 ) -> Result<SmdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];
     loop {
-        handle_
+        handle
             .read_bulk(&mut receive_buf, Duration::from_millis(5000))
             .unwrap();
-        if (address_ | device_type::SD) == receive_buf[0] {
+        if (address | device_type::SD) == receive_buf[0] {
             return Ok(SmdStatus {
                 address: receive_buf[0],
                 semi_id: receive_buf[1],

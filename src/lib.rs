@@ -34,7 +34,7 @@ pub enum USBError {
 ///     send_emergency(&handle);
 /// }
 /// ```
-pub fn send_emergency(handle_: &impl usb::USBHandleTrait) {
+pub fn send_emergency(handle: &impl usb::USBHandleTrait) {
     let send_buf: [u8; 8] = [
         device_type::EMMERGENCY,
         device_type::MASTER,
@@ -45,7 +45,7 @@ pub fn send_emergency(handle_: &impl usb::USBHandleTrait) {
         0,
         0,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap_or(8);
 }

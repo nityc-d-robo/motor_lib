@@ -19,18 +19,18 @@ pub struct BlMdStatus {
 }
 
 pub fn send_velocity(
-    handle_: &impl usb::USBHandleTrait,
-    pid_: &mut VelPid,
-    controller_id_: u8,
-    velocity_: i16,
+    handle: &impl usb::USBHandleTrait,
+    pid: &mut VelPid,
+    controller_id: u8,
+    velocity: i16,
 ) -> Result<BlMdStatus, crate::USBError> {
-    let status = match receive_status(handle_, controller_id_) {
+    let status = match receive_status(handle, controller_id) {
         Ok(s) => s,
         Err(e) => return Err(e),
     };
     let actual = status.speed;
-    let output = pid_.update(velocity_ as f32, actual as f32, 0.3) as i16; // 制御周期100Hz
-    let return_status = send_current(handle_, controller_id_, output);
+    let output = pid.update(velocity as f32, actual as f32, 0.3) as i16; // 制御周期100Hz
+    let return_status = send_current(handle, controller_id, output);
     if cfg!(test) {
         println!("{},{},{}", actual, output, status.speed);
     }
@@ -38,38 +38,38 @@ pub fn send_velocity(
 }
 
 pub fn send_current(
-    handle_: &impl usb::USBHandleTrait,
-    controller_id_: u8,
-    current_: i16,
+    handle: &impl usb::USBHandleTrait,
+    controller_id: u8,
+    current: i16,
 ) -> Result<BlMdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
         0x30,
         0,
-        controller_id_,
-        ((current_ >> 8) & 0xff) as u8,
-        (current_ & 0xff) as u8,
+        controller_id,
+        ((current >> 8) & 0xff) as u8,
+        (current & 0xff) as u8,
         0,
         0,
         0,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap();
-    return receive_status(handle_, controller_id_);
+    return receive_status(handle, controller_id);
 }
 
 pub fn receive_status(
-    handle_: &impl usb::USBHandleTrait,
-    controller_id_: u8,
+    handle: &impl usb::USBHandleTrait,
+    controller_id: u8,
 ) -> Result<BlMdStatus, crate::USBError> {
     let mut receive_buf = [0; 8];
     loop {
-        match handle_.read_bulk(&mut receive_buf, Duration::from_millis(5000)) {
+        match handle.read_bulk(&mut receive_buf, Duration::from_millis(5000)) {
             Ok(_) => {}
             Err(e) => return Err(e),
         }
         let received_stdid = (receive_buf[0] as u16) << 8 | (receive_buf[1] as u16);
-        if received_stdid == (0x200 + (controller_id_ as u16)) {
+        if received_stdid == (0x200 + (controller_id as u16)) {
             return Ok(BlMdStatus {
                 std_id: received_stdid,
                 angle: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),

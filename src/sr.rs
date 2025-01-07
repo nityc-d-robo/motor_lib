@@ -25,7 +25,7 @@ pub struct SrStatus {
     pub freq: f32,
 }
 
-pub fn send_stop(handle_: &impl usb::USBHandleTrait) {
+pub fn send_stop(handle: &impl usb::USBHandleTrait) {
     let send_buf: [u8; 8] = [
         device_type::SR,
         device_type::MASTER,
@@ -36,11 +36,11 @@ pub fn send_stop(handle_: &impl usb::USBHandleTrait) {
         0,
         0,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(5000))
         .unwrap();
 }
-pub fn send_start(handle_: &impl usb::USBHandleTrait, timeout: u16) {
+pub fn send_start(handle: &impl usb::USBHandleTrait, timeout: u16) {
     let send_buf: [u8; 8] = [
         device_type::SR,
         device_type::MASTER,
@@ -51,12 +51,12 @@ pub fn send_start(handle_: &impl usb::USBHandleTrait, timeout: u16) {
         0,
         0,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(timeout.into()))
         .unwrap();
 }
 pub fn send_colors(
-    handle_: &impl usb::USBHandleTrait,
+    handle: &impl usb::USBHandleTrait,
     red: u8,
     green: u8,
     blue: u8,
@@ -73,7 +73,7 @@ pub fn send_colors(
         blue,
         (freq * 4.0) as u8,
     ];
-    handle_
+    handle
         .write_bulk(&send_buf, Duration::from_millis(timeout.into()))
         .unwrap();
 }
