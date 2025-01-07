@@ -14,8 +14,8 @@ pub mod mode {
 pub struct SmdStatus {
     pub address: u8,
     pub semi_id: u8,
-    pub angle: i16,
-    pub speed: i16,
+    pub angle_0: i16,
+    pub angle_1: i16,
 }
 
 /// Sends a command to set the angle on the specified SMD device.
@@ -146,8 +146,8 @@ pub fn receive_status(
             return Ok(SmdStatus {
                 address: receive_buf[0],
                 semi_id: receive_buf[1],
-                angle: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
-                speed: ((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16)),
+                angle_0: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
+                angle_1: ((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16)),
             });
         }
     }
