@@ -19,20 +19,20 @@ pub struct SmdStatus {
 }
 
 /// Sends a command to set the angle on the specified SMD device.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 /// * `address` - The address of the SMD device.
 /// * `port` - The port number.
 /// * `angle` - The angle to set.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A result containing the status of the SMD device or a USBError.
-/// 
+///
 /// # Example
-/// 
+///
 /// Sample code to set the angle of a motor connected to the SMD at address 0x20 and port 1 to 45 degrees.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, smd};
@@ -65,20 +65,20 @@ pub fn send_angle(
 }
 
 /// Sends a command to set angles on the specified SMD device.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 /// * `address` - The address of the SMD device.
 /// * `angle_0` - The angle to set for port 0.
 /// * `angle_1` - The angle to set for port 1.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A result containing the status of the SMD device or a USBError.
-/// 
+///
 /// # Example
-/// 
+///
 /// Sample code to set angles of motors connected to the SMD at address 0x20, port 0 to 30 degrees and port 1 to 60 degrees.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, smd};
@@ -95,7 +95,7 @@ pub fn send_angles(
     angle_1: u8,
 ) -> Result<SmdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
-        address | device_type::SD,
+        address | device_type::SMD,
         device_type::MASTER,
         mode::ANGLES,
         0,
@@ -111,18 +111,18 @@ pub fn send_angles(
 }
 
 /// Receive a data from the specified SMD device.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 /// * `address` - The address of the SMD device.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A result containing the status of the SMD device or a USBError.
-/// 
+///
 /// # Example
-/// 
+///
 /// Sample code to retrieve status data from the SMD at address 0x20.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, smd};

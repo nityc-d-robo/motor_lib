@@ -29,19 +29,19 @@ pub struct MdStatus {
 }
 
 /// Sends a command to set the PWM duty cycle on the specified MD device.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 /// * `address` - The address of the MD device.
 /// * `power` - The PWM duty cycle to set.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A result containing the status of the MD device or a USBError.
-/// 
+///
 /// # Example
-/// 
+///
 /// Sample code to rotate a motor connected to the MD at address 0x00 at a PWM duty cycle of 1000.  
 /// This sample code retrieves information such as the rotation speed after running the motor.
 /// ```rust
@@ -82,19 +82,19 @@ pub fn send_pwm(
 }
 
 /// Sends a command to set the rotation speed on the specified MD device.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 /// * `address` - The address of the MD device.
 /// * `velocity` - The rotation speed to set.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A result containing the status of the MD device or a USBError.
-/// 
+///
 /// # Example
-/// 
+///
 /// Sample code to rotate a motor connected to the MD at address 0x00 at 100 rpm.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, md};
@@ -129,19 +129,19 @@ pub fn send_speed(
 }
 
 /// Sends a command to set the angle on the specified MD device.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 /// * `address` - The address of the MD device.
 /// * `angle` - The angle to set.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A result containing the status of the MD device or a USBError.
-/// 
+///
 /// # Example
-/// 
+///
 /// Sample code to set the angle of a motor connected to the MD at address 0x00 to 90 degrees.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, md};
@@ -160,7 +160,7 @@ pub fn send_angle(
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
-        mode::SPEED,
+        mode::ANGLE,
         if angle >= 0 { 0 } else { 1 },
         ((angle_abs >> 8) & 0xff) as u8,
         (angle_abs & 0xff) as u8,
@@ -174,21 +174,21 @@ pub fn send_angle(
 }
 
 /// Sends a command to set the duty cycle on before and after pressing the limit switch.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 /// * `address` - The address of the MD device.
 /// * `port` - The port number.
 /// * `power` - The power before pressing the limit switch.
 /// * `after_power` - The power after pressing the limit switch.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A result containing the status of the MD device or a USBError.
-/// 
+///
 /// # Example
-/// 
+///
 /// Sample code to set the duty cycle before and after pressing the limit switch on the MD at address 0x00.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, md};
@@ -222,18 +222,18 @@ pub fn send_limsw(
 }
 
 /// Receive a data from the specified MD device.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 /// * `address` - The address of the MD device.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A result containing the status of the MD device or a USBError.
-/// 
+///
 /// # Example
-/// 
+///
 /// Sample code to rotate a motor at 100 rpm and continuously retrieve rotation speed data.
 /// ```rust
 /// use motor_lib::{USBHandle, USBError, md};

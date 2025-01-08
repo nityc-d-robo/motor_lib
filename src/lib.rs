@@ -39,11 +39,11 @@ pub enum USBError {
 
 /// Sends an emergency signal to the drobo CAN device (for example, MD, SD, etc.)   
 /// It's not possible to confirm whether the signal was sent properly, and this function always returns nothing.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
-/// 
+///
 /// # Example
 /// ```rust
 /// use motor_lib::{USBHandle, send_emergency};
@@ -52,7 +52,7 @@ pub enum USBError {
 ///     send_emergency(&handle);
 /// }
 /// ```
-pub fn send_emergency(handle: &impl usb::USBHandleTrait) {
+pub fn send_emergency(handle: &impl usb::USBHandleTrait) -> Result<usize, USBError> {
     let send_buf: [u8; 8] = [
         device_type::EMMERGENCY,
         device_type::MASTER,
@@ -63,7 +63,5 @@ pub fn send_emergency(handle: &impl usb::USBHandleTrait) {
         0,
         0,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(5000))
-        .unwrap_or(8);
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))
 }
