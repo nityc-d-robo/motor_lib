@@ -1,55 +1,67 @@
-use std::time::Duration;
-use rusb::{open_device_with_vid_pid, constants::LIBUSB_ENDPOINT_OUT};
-pub use rusb::{DeviceHandle, GlobalContext, Error};
+//! This library provides an interface for controlling various motor devices via USB.
 
+use std::time::Duration;
+
+pub mod blmd;
 pub mod md;
 pub mod sd;
 pub mod smd;
-pub mod blmd;
 pub mod sr;
+pub mod usb;
 
-#[allow(non_snake_case)]
-pub mod IdType {
+/// Enumeration of device type numbers.
+pub mod device_type {
+    /// 0x00
     pub const MD: u8 = 0x00;
+    /// 0x10
     pub const SD: u8 = 0x10;
+    /// 0x20
     pub const SMD: u8 = 0x20;
+    /// 0x30
     pub const BLMD: u8 = 0x30;
+    /// 0x40
     pub const SR: u8 = 0x40;
+    /// 0x50
     pub const SM: u8 = 0x50;
+    /// 0x60
     pub const MASTER: u8 = 0x60;
+    /// 0xF0
     pub const EMMERGENCY: u8 = 0xf0;
 }
 
-#[allow(non_snake_case)]
-pub mod EndPont {
-    pub static EP1: u8 = 1;
+/// A handle to read and write an USB device.
+pub struct USBHandle;
+
+#[derive(Debug)]
+pub enum USBError {
+    RUsbError(rusb::Error),
 }
 
-pub fn init_usb_handle(vendor_id: u16, product_id: u16, b_interface_number: u8) -> Result<DeviceHandle<GlobalContext>, rusb::Error>{
-    let handle = loop {
-        match open_device_with_vid_pid(vendor_id, product_id) {
-            Some(t) => break t,
-            None => {
-                eprintln!("usb_can_hardware not detected.");
-                std::thread::sleep(core::time::Duration::from_secs(1));
-            }
-        }
-    };
-    handle.set_auto_detach_kernel_driver(true).unwrap_or(());
-    handle.claim_interface(b_interface_number)?;
-    return Ok(handle);
-}
-
-pub fn send_emergency(handle_: &DeviceHandle<GlobalContext>){
+/// Sends an emergency signal to the drobo CAN device (for example, MD, SD, etc.)   
+/// It's not possible to confirm whether the signal was sent properly, and this function always returns nothing.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+///
+/// # Example
+/// ```rust
+/// use motor_lib::{USBHandle, send_emergency};
+/// fn main() {
+///     let handle = USBHandle;
+///     send_emergency(&handle);
+/// }
+/// ```
+pub fn send_emergency(handle: &impl usb::USBHandleTrait) -> Result<usize, USBError> {
     let send_buf: [u8; 8] = [
-        IdType::EMMERGENCY,
-        IdType::MASTER,
+        device_type::EMMERGENCY,
+        device_type::MASTER,
         0,
         0,
         0,
         0,
         0,
-        0
+        0,
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))
 }

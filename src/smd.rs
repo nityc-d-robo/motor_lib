@@ -1,10 +1,10 @@
+//! This module provides functions to control SMD devices using USB communication.
+
 use std::time::Duration;
-use rusb::{constants::{LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_OUT}, DeviceHandle, Error, GlobalContext};
 
-use crate::{IdType, EndPont};
+use crate::{device_type, usb};
 
-#[allow(non_snake_case)]
-pub mod Mode {
+pub mod mode {
     pub const STATUS: u8 = 0;
     pub const ANGLE: u8 = 1;
     pub const ANGLES: u8 = 2;
@@ -14,52 +14,141 @@ pub mod Mode {
 pub struct SmdStatus {
     pub address: u8,
     pub semi_id: u8,
-    pub angle: i16,
-    pub speed: i16,
+    pub angle_0: i16,
+    pub angle_1: i16,
 }
 
-pub fn send_angle(handle_: &DeviceHandle<GlobalContext>, address_: u8, port_: u8, angle_: u8) -> Result<SmdStatus, Error>{
+/// Sends a command to set the angle on the specified SMD device.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the SMD device.
+/// * `port` - The port number.
+/// * `angle` - The angle to set.
+///
+/// # Returns
+///
+/// A result containing the status of the SMD device or a USBError.
+///
+/// # Example
+///
+/// Sample code to set the angle of a motor connected to the SMD at address 0x20 and port 1 to 45 degrees.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, smd};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     smd::send_angle(&handle, 0x20, 1, 45)?;
+///     Ok(())
+/// }
+/// ```
+pub fn send_angle(
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    port: u8,
+    angle: u8,
+) -> Result<SmdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
-        address_ | IdType::SMD,
-        IdType::MASTER,
-        Mode::ANGLE,
-        port_,
-        angle_,
+        address | device_type::SMD,
+        device_type::MASTER,
+        mode::ANGLE,
+        port,
+        angle,
         0,
         0,
-        0
+        0,
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
-    return receive_status(handle_, address_)
+    handle
+        .write_bulk(&send_buf, Duration::from_millis(5000))
+        .unwrap();
+    return receive_status(handle, address);
 }
 
-pub fn send_angles(handle_: &DeviceHandle<GlobalContext>, address_: u8, angle0_: u8, angle1_ :u8) -> Result<SmdStatus, Error>{
+/// Sends a command to set angles on the specified SMD device.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the SMD device.
+/// * `angle_0` - The angle to set for port 0.
+/// * `angle_1` - The angle to set for port 1.
+///
+/// # Returns
+///
+/// A result containing the status of the SMD device or a USBError.
+///
+/// # Example
+///
+/// Sample code to set angles of motors connected to the SMD at address 0x20, port 0 to 30 degrees and port 1 to 60 degrees.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, smd};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     smd::send_angles(&handle, 0x20, 30, 60)?;
+///     Ok(())
+/// }
+/// ```
+pub fn send_angles(
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    angle_0: u8,
+    angle_1: u8,
+) -> Result<SmdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
-        address_ | IdType::SD,
-        IdType::MASTER,
-        Mode::ANGLES,
+        address | device_type::SMD,
+        device_type::MASTER,
+        mode::ANGLES,
         0,
-        angle0_,
-        angle1_,
+        angle_0,
+        angle_1,
         0,
-        0
+        0,
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
-    return receive_status(handle_, address_)
+    handle
+        .write_bulk(&send_buf, Duration::from_millis(5000))
+        .unwrap();
+    return receive_status(handle, address);
 }
 
-#[allow(unused_variables)]
-pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, address_: u8) -> Result<SmdStatus, Error>{
-    let receive_buf = [0;8]; // SMD側がデータ返送に対応するまでの仮実装
+/// Receive a data from the specified SMD device.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the SMD device.
+///
+/// # Returns
+///
+/// A result containing the status of the SMD device or a USBError.
+///
+/// # Example
+///
+/// Sample code to retrieve status data from the SMD at address 0x20.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, smd};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     let status = smd::receive_status(&handle, 0x20)?;
+///     println!("{:?}", status);
+///     Ok(())
+/// }
+/// ```
+pub fn receive_status(
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+) -> Result<SmdStatus, crate::USBError> {
+    let mut receive_buf = [0; 8];
     loop {
-        // handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
-        // if (address_ | IdType::SD) == receive_buf[0] {
-            return Ok(SmdStatus{
+        handle
+            .read_bulk(&mut receive_buf, Duration::from_millis(5000))
+            .unwrap();
+        if (address | device_type::SD) == receive_buf[0] {
+            return Ok(SmdStatus {
                 address: receive_buf[0],
                 semi_id: receive_buf[1],
-                angle: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
-                speed: ((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16)),
+                angle_0: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
+                angle_1: ((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16)),
             });
-        // }
+        }
     }
 }

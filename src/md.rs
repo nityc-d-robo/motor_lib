@@ -1,10 +1,10 @@
+//! This module provides functions to control MD devices using USB communication.
+
 use std::time::Duration;
-use rusb::{constants::{LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_OUT}, DeviceHandle, Error, GlobalContext};
 
-use crate::{IdType, EndPont};
+use crate::{device_type, usb};
 
-#[allow(non_snake_case)]
-pub mod Mode {
+pub mod mode {
     pub const INIT: u8 = 0;
     pub const STATUS: u8 = 1;
     pub const PWM: u8 = 2;
@@ -28,146 +28,247 @@ pub struct MdStatus {
     pub limsw: LimSwStatus,
 }
 
-fn rpm_to_count(rpm: i16) -> i16 {
-    let count = 8192.0 * (rpm as f64) / (12.0 * 1000.0);
-    return count.round() as i16
-}
-fn count_to_rpm(rpm: i16) -> i16 {
-    let rpm = (12.0 * 1000.0 * rpm as f64) / 8192.0;
-    return rpm.round() as i16
-}
-
-pub fn send_pwm(handle_: &DeviceHandle<GlobalContext>, address_: u8, power_: i16) -> Result<MdStatus, Error>{
+/// Sends a command to set the PWM duty cycle on the specified MD device.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the MD device.
+/// * `power` - The PWM duty cycle to set.
+///
+/// # Returns
+///
+/// A result containing the status of the MD device or a USBError.
+///
+/// # Example
+///
+/// Sample code to rotate a motor connected to the MD at address 0x00 at a PWM duty cycle of 1000.  
+/// This sample code retrieves information such as the rotation speed after running the motor.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, md};
+/// fn main() {
+///    let handle = USBHandle;
+///    let return_status =
+///    loop {
+///         match md::send_pwm(&handle, 0x00, 1000) {
+///             Ok(t) => {
+///                 break t;
+///             },
+///             Err(e) => {}
+///         }
+///    };
+///    println!("{:?}", return_status);
+/// }
+/// ```
+pub fn send_pwm(
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    power: i16,
+) -> Result<MdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
-        address_,
-        IdType::MASTER,
-        Mode::PWM,
+        address,
+        device_type::MASTER,
+        mode::PWM,
         0,
-        ((power_ >> 8) & 0xff) as u8,
-        (power_ & 0xff) as u8,
+        ((power >> 8) & 0xff) as u8,
+        (power & 0xff) as u8,
         0,
-        0
+        0,
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
-    return receive_status(handle_, address_)
+    handle
+        .write_bulk(&send_buf, Duration::from_millis(5000))
+        .unwrap();
+    return receive_status(handle, address);
 }
 
-pub fn send_speed(handle_: &DeviceHandle<GlobalContext>, address_: u8, velocity_: i16) -> Result<MdStatus, Error>{
-    if velocity_ == 0 {
-        send_pwm(handle_, address_, 0)?;
+/// Sends a command to set the rotation speed on the specified MD device.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the MD device.
+/// * `velocity` - The rotation speed to set.
+///
+/// # Returns
+///
+/// A result containing the status of the MD device or a USBError.
+///
+/// # Example
+///
+/// Sample code to rotate a motor connected to the MD at address 0x00 at 100 rpm.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, md};
+/// use std::time::Duration;
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     md::send_speed(&handle, 0x00, 100)?;
+///     Ok(())
+/// }
+/// ```
+pub fn send_speed(
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    velocity: i16,
+) -> Result<MdStatus, crate::USBError> {
+    if velocity == 0 {
+        send_pwm(handle, address, 0)?;
     } else {
-    let count = rpm_to_count(velocity_);
-    let send_buf: [u8; 8] = [
-        address_,
-        IdType::MASTER,
-        Mode::SPEED,
-        0,
-        ((count >> 8) & 0xff) as u8,
-        (count & 0xff) as u8,
-        0,
-        0
-    ];
-        handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000))?;
+        let send_buf: [u8; 8] = [
+            address,
+            device_type::MASTER,
+            mode::SPEED,
+            0,
+            ((velocity >> 8) & 0xff) as u8,
+            (velocity & 0xff) as u8,
+            0,
+            0,
+        ];
+        handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
     }
-    return receive_status(handle_, address_)
+    return receive_status(handle, address);
 }
 
-pub fn send_angle(handle_: &DeviceHandle<GlobalContext>, address_: u8, angle_: i16) -> Result<MdStatus, Error>{
-    let angle_abs = angle_.abs();
+/// Sends a command to set the angle on the specified MD device.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the MD device.
+/// * `angle` - The angle to set.
+///
+/// # Returns
+///
+/// A result containing the status of the MD device or a USBError.
+///
+/// # Example
+///
+/// Sample code to set the angle of a motor connected to the MD at address 0x00 to 90 degrees.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, md};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     md::send_angle(&handle, 0x00, 90)?;
+///     Ok(())
+/// }
+/// ```
+pub fn send_angle(
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    angle: i16,
+) -> Result<MdStatus, crate::USBError> {
+    let angle_abs = angle.abs();
     let send_buf: [u8; 8] = [
-        address_,
-        IdType::MASTER,
-        Mode::SPEED,
-        if angle_ >= 0 {0} else {1},
+        address,
+        device_type::MASTER,
+        mode::ANGLE,
+        if angle >= 0 { 0 } else { 1 },
         ((angle_abs >> 8) & 0xff) as u8,
         (angle_abs & 0xff) as u8,
         0,
-        0
+        0,
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
-    return receive_status(handle_, address_)
+    handle
+        .write_bulk(&send_buf, Duration::from_millis(5000))
+        .unwrap();
+    return receive_status(handle, address);
 }
 
-pub fn send_limsw(handle_: &DeviceHandle<GlobalContext>, address_: u8, port_: u8, power_: i16, after_power_: i16) -> Result<MdStatus, Error>{
+/// Sends a command to set the duty cycle on before and after pressing the limit switch.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the MD device.
+/// * `port` - The port number.
+/// * `power` - The power before pressing the limit switch.
+/// * `after_power` - The power after pressing the limit switch.
+///
+/// # Returns
+///
+/// A result containing the status of the MD device or a USBError.
+///
+/// # Example
+///
+/// Sample code to set the duty cycle before and after pressing the limit switch on the MD at address 0x00.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, md};
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     md::send_limsw(&handle, 0x00, 1, 1000, 500)?;
+///     Ok(())
+/// }
+/// ```
+pub fn send_limsw(
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+    port: u8,
+    power: i16,
+    after_power: i16,
+) -> Result<MdStatus, crate::USBError> {
     let send_buf: [u8; 8] = [
-        address_,
-        IdType::MASTER,
-        Mode::LIM_SW,
-        port_,
-        ((power_ >> 8) & 0xff) as u8,
-        (power_ & 0xff) as u8,
-        ((after_power_ >> 8) & 0xff) as u8,
-        (after_power_ & 0xff) as u8,
+        address,
+        device_type::MASTER,
+        mode::LIM_SW,
+        port,
+        ((power >> 8) & 0xff) as u8,
+        (power & 0xff) as u8,
+        ((after_power >> 8) & 0xff) as u8,
+        (after_power & 0xff) as u8,
     ];
-    handle_.write_bulk(LIBUSB_ENDPOINT_OUT | EndPont::EP1, &send_buf, Duration::from_millis(5000)).unwrap();
-    return receive_status(handle_, address_)
+    handle
+        .write_bulk(&send_buf, Duration::from_millis(5000))
+        .unwrap();
+    return receive_status(handle, address);
 }
 
-#[allow(unused_variables)]
-pub fn receive_status(handle_: &DeviceHandle<GlobalContext>, address_: u8) -> Result<MdStatus, Error>{
-    let mut receive_buf = [0;8]; // MD側がデータ返送に対応するまでの仮実装
+/// Receive a data from the specified MD device.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the USBHandleTrait.
+/// * `address` - The address of the MD device.
+///
+/// # Returns
+///
+/// A result containing the status of the MD device or a USBError.
+///
+/// # Example
+///
+/// Sample code to rotate a motor at 100 rpm and continuously retrieve rotation speed data.
+/// ```rust
+/// use motor_lib::{USBHandle, USBError, md};
+/// use std::thread::sleep;
+/// use std::time::Duration;
+/// fn main() -> Result<(), USBError> {
+///     let handle = USBHandle;
+///     md::send_speed(&handle, 0x00, 100)?;
+///     std::thread::sleep(Duration::from_secs(1));
+///     let status = md::receive_status(&handle, 0x00)?;
+///     println!("{:?}", status);
+///     Ok(())
+/// }
+/// ```
+pub fn receive_status(
+    handle: &impl usb::USBHandleTrait,
+    address: u8,
+) -> Result<MdStatus, crate::USBError> {
+    let mut receive_buf = [0; 8];
     loop {
-        handle_.read_bulk(LIBUSB_ENDPOINT_IN | EndPont::EP1, &mut receive_buf, Duration::from_millis(5000)).unwrap();
-        if address_ == receive_buf[0] {
-            let rpm = count_to_rpm((receive_buf[4] as i16) << 8 | (receive_buf[5] as i16));
-            return Ok(MdStatus{
+        handle
+            .read_bulk(&mut receive_buf, Duration::from_millis(5000))
+            .unwrap();
+        if address == receive_buf[0] {
+            let rpm = (receive_buf[4] as i16) << 8 | (receive_buf[5] as i16);
+            return Ok(MdStatus {
                 address: receive_buf[0],
                 semi_id: receive_buf[1],
                 angle: ((receive_buf[2] as i16) << 8 | (receive_buf[3] as i16)),
                 speed: rpm,
-                limsw: LimSwStatus{
+                limsw: LimSwStatus {
                     limsw_0: receive_buf[6] == 1,
                     limsw_1: receive_buf[7] == 1,
-                }
+                },
             });
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::{thread, time::Duration};
-
-    use crate::{init_usb_handle, md, send_emergency};
-
-    #[test]
-    fn motor_rotation() {
-        let handle = init_usb_handle(0x483, 0x5740, 1).unwrap();
-        // エラーハンドリング
-        let return_status = 
-            loop {
-                match md::send_speed(&handle, 0x00, 400) {
-                    Ok(t) => {
-                        break t
-                    },
-                    Err(_) => {
-                        // 何らかのエラー処理
-                    }
-                };
-            };
-        println!("{:?}", return_status);
-        loop {
-            let return_status = md::receive_status(&handle, 0x00).unwrap();
-            println!("{:?}", return_status);
-        }
-    }
-    #[test]
-    fn omni_control_test() {
-        let handle = init_usb_handle(0x483, 0x5740, 1).unwrap();
-        // エラーハンドリング
-        for i in 0..500 {
-            println!("{i}");
-            let return_status = md::send_speed(&handle, 0x00, i).unwrap();
-            let return_status = md::send_speed(&handle, 0x01, i).unwrap();
-            let return_status = md::send_speed(&handle, 0x02, i).unwrap();
-            println!("{:?}", return_status);
-            thread::sleep(Duration::from_millis(100));
-        }
-        send_emergency(&handle);
-    }
-    #[test]
-    fn stop_all() {
-        let handle = init_usb_handle(0x483, 0x5740, 1).unwrap();
-        send_emergency(&handle);
     }
 }
