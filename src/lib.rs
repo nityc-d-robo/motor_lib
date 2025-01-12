@@ -31,7 +31,9 @@ pub mod device_type {
 }
 
 /// A handle to read and write an USB device.
-pub struct USBHandle;
+pub struct USBHandle {
+    handle: rusb::DeviceHandle<rusb::GlobalContext>,
+}
 
 pub struct GrpcHandle {
     tokio_context: tokio::runtime::Runtime,
