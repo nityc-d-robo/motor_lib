@@ -1,3 +1,5 @@
+//! Enumeration of device type numbers.
+
 /// 0x00
 pub const MD: u8 = 0x00;
 /// 0x10
