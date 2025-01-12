@@ -8,11 +8,9 @@ pub mod pb {
 use pb::UsbCanRequest;
 
 impl GrpcHandle {
-    pub fn new(
-        url: &str
-    ) -> Self {
+    pub fn new(url: &str) -> Self {
         let tokio_context = tokio::runtime::Runtime::new().unwrap();
-        let client = tokio_context.block_on(async{
+        let client = tokio_context.block_on(async {
             pb::usb_can_client::UsbCanClient::connect(url.to_string())
                 .await
                 .unwrap()

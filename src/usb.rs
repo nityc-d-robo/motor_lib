@@ -62,7 +62,7 @@ pub trait USBHandleTrait {
 
 impl crate::USBHandle {
     pub fn new() -> Self {
-        Self{}
+        Self {}
     }
 }
 
