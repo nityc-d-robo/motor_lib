@@ -39,7 +39,7 @@ pub struct SrStatus {
 /// ```rust
 /// use motor_lib::{USBHandle, sr};
 /// fn main() {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     sr::send_stop(&handle);
 /// }
 /// ```
@@ -72,7 +72,7 @@ pub fn send_stop(handle: &impl HandleTrait) {
 /// ```rust
 /// use motor_lib::{USBHandle, sr};
 /// fn main() {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     sr::send_start(&handle, 1000);
 /// }
 /// ```
@@ -109,7 +109,7 @@ pub fn send_start(handle: &impl HandleTrait, timeout: u16) {
 /// ```rust
 /// use motor_lib::{USBHandle, sr};
 /// fn main() {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     sr::send_colors(&handle, 255, 0, 0, 0.0, 1000);
 /// }
 /// ```

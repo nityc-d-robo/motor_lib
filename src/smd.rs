@@ -37,7 +37,7 @@ pub struct SmdStatus {
 /// ```rust
 /// use motor_lib::{USBHandle, Error, smd};
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     smd::send_angle(&handle, 0x20, 1, 45)?;
 ///     Ok(())
 /// }
@@ -83,7 +83,7 @@ pub fn send_angle(
 /// ```rust
 /// use motor_lib::{USBHandle, Error, smd};
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     smd::send_angles(&handle, 0x20, 30, 60)?;
 ///     Ok(())
 /// }
@@ -127,7 +127,7 @@ pub fn send_angles(
 /// ```rust
 /// use motor_lib::{USBHandle, Error, smd};
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     let status = smd::receive_status(&handle, 0x20)?;
 ///     println!("{:?}", status);
 ///     Ok(())

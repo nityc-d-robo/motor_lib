@@ -46,7 +46,7 @@ pub struct SdStatus {
 /// ```rust
 /// use motor_lib::{USBHandle, Error, sd};
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     sd::send_power(&handle, 0x10, 0, 1000)?;
 ///     Ok(())
 /// }
@@ -94,7 +94,7 @@ pub fn send_power(
 /// ```rust
 /// use motor_lib::{USBHandle, Error, sd};
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     sd::send_powers(&handle, 0x10, 0, 1000)?;
 ///     Ok(())
 /// }
@@ -141,7 +141,7 @@ pub fn send_powers(
 /// ```rust
 /// use motor_lib::{USBHandle, Error, sd};
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     let status = sd::receive_status(&handle, 0x10)?;
 ///     println!("{:?}", status);
 ///     Ok(())

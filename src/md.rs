@@ -47,7 +47,7 @@ pub struct MdStatus {
 /// ```rust
 /// use motor_lib::{USBHandle, Error, md};
 /// fn main() {
-///    let handle = USBHandle;
+///    let handle = USBHandle::new(0x483, 0x5740, 1);
 ///    let return_status =
 ///    loop {
 ///         match md::send_pwm(&handle, 0x00, 1000) {
@@ -100,7 +100,7 @@ pub fn send_pwm(
 /// use motor_lib::{USBHandle, Error, md};
 /// use std::time::Duration;
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     md::send_speed(&handle, 0x00, 100)?;
 ///     Ok(())
 /// }
@@ -146,7 +146,7 @@ pub fn send_speed(
 /// ```rust
 /// use motor_lib::{USBHandle, Error, md};
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     md::send_angle(&handle, 0x00, 90)?;
 ///     Ok(())
 /// }
@@ -193,7 +193,7 @@ pub fn send_angle(
 /// ```rust
 /// use motor_lib::{USBHandle, Error, md};
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     md::send_limsw(&handle, 0x00, 1, 1000, 500)?;
 ///     Ok(())
 /// }
@@ -240,7 +240,7 @@ pub fn send_limsw(
 /// use std::thread::sleep;
 /// use std::time::Duration;
 /// fn main() -> Result<(), Error> {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     md::send_speed(&handle, 0x00, 100)?;
 ///     std::thread::sleep(Duration::from_secs(1));
 ///     let status = md::receive_status(&handle, 0x00)?;
