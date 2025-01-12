@@ -41,10 +41,11 @@ pub trait HandleTrait {
 ///
 /// # Example
 /// ```rust
-/// use motor_lib::{USBHandle, send_emergency};
-/// fn main() {
+/// use motor_lib::{USBHandle, Error, send_emergency};
+/// fn main() -> Result<(), Error> {
 ///     let handle = USBHandle::new(0x483, 0x5740, 1);
-///     send_emergency(&handle);
+///     send_emergency(&handle)?;
+///     Ok(())
 /// }
 /// ```
 pub fn send_emergency(handle: &impl HandleTrait) -> Result<usize, Error> {
