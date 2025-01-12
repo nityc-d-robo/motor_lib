@@ -5,14 +5,6 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[[bin]]
-name = "sample_1"
-path = "src/bin/sample/sample_1.rs"
-
-[[bin]]
-name = "sample_2"
-path = "src/bin/sample/sample_2.rs"
-
 [dependencies]
 advanced-pid = "0.2.2"
 rusb = "0.9"
@@ -22,3 +14,10 @@ tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 
 [build-dependencies]
 tonic-build = "*"
+
+[[example]]
+name = "sample_1"
+path = "src/bin/examples/sample_1.rs"
+[[example]]
+name = "sample_2"
+path = "src/bin/examples/sample_2.rs"
