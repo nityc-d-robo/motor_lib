@@ -3,7 +3,7 @@ pub mod pb {
 }
 
 use rusb::constants::{LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_OUT};
-use std::{net::ToSocketAddrs, time};
+use std::time;
 use tonic::transport::Server;
 
 const EP1: u8 = 1;
@@ -32,7 +32,7 @@ impl pb::usb_can_server::UsbCan for UsbCanServer {
         &self,
         _request: tonic::Request<pb::UsbCanRequest>,
     ) -> Result<tonic::Response<()>, tonic::Status> {
-        let send_buf = vec![0; 8];
+        let send_buf = _request.into_inner().send_buf;
         self.handle
             .write_bulk(LIBUSB_ENDPOINT_OUT | EP1, &send_buf, TIMEOUT)
             .unwrap();
@@ -50,9 +50,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     handle.claim_interface(B_INTERFACE_NUMBER).unwrap();
 
     let server = UsbCanServer { handle };
+    let addr = "127.0.0.1:50051".parse().unwrap();
+    println!("Server listening on {}", addr);
+
     Server::builder()
         .add_service(pb::usb_can_server::UsbCanServer::new(server))
-        .serve("[::1]:50051".to_socket_addrs().unwrap().next().unwrap())
+        .serve(addr)
         .await
         .unwrap();
     Ok(())

@@ -34,6 +34,7 @@ pub mod device_type {
 pub struct USBHandle;
 
 pub struct GrpcHandle {
+    tokio_context: tokio::runtime::Runtime,
     client: RefCell<grpc::pb::usb_can_client::UsbCanClient<tonic::transport::Channel>>,
 }
 
