@@ -2,7 +2,7 @@
 
 use std::time::Duration;
 
-use crate::{device_type, usb};
+use crate::{device_type, HandleTrait};
 
 pub mod mode {
     pub const INIT: u8 = 0;
@@ -38,14 +38,14 @@ pub struct MdStatus {
 ///
 /// # Returns
 ///
-/// A result containing the status of the MD device or a USBError.
+/// A result containing the status of the MD device or a Error.
 ///
 /// # Example
 ///
 /// Sample code to rotate a motor connected to the MD at address 0x00 at a PWM duty cycle of 1000.  
 /// This sample code retrieves information such as the rotation speed after running the motor.
 /// ```rust
-/// use motor_lib::{USBHandle, USBError, md};
+/// use motor_lib::{USBHandle, Error, md};
 /// fn main() {
 ///    let handle = USBHandle;
 ///    let return_status =
@@ -61,10 +61,10 @@ pub struct MdStatus {
 /// }
 /// ```
 pub fn send_pwm(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     address: u8,
     power: i16,
-) -> Result<MdStatus, crate::USBError> {
+) -> Result<MdStatus, crate::Error> {
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
@@ -91,25 +91,25 @@ pub fn send_pwm(
 ///
 /// # Returns
 ///
-/// A result containing the status of the MD device or a USBError.
+/// A result containing the status of the MD device or a Error.
 ///
 /// # Example
 ///
 /// Sample code to rotate a motor connected to the MD at address 0x00 at 100 rpm.
 /// ```rust
-/// use motor_lib::{USBHandle, USBError, md};
+/// use motor_lib::{USBHandle, Error, md};
 /// use std::time::Duration;
-/// fn main() -> Result<(), USBError> {
+/// fn main() -> Result<(), Error> {
 ///     let handle = USBHandle;
 ///     md::send_speed(&handle, 0x00, 100)?;
 ///     Ok(())
 /// }
 /// ```
 pub fn send_speed(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     address: u8,
     velocity: i16,
-) -> Result<MdStatus, crate::USBError> {
+) -> Result<MdStatus, crate::Error> {
     if velocity == 0 {
         send_pwm(handle, address, 0)?;
     } else {
@@ -138,24 +138,24 @@ pub fn send_speed(
 ///
 /// # Returns
 ///
-/// A result containing the status of the MD device or a USBError.
+/// A result containing the status of the MD device or a Error.
 ///
 /// # Example
 ///
 /// Sample code to set the angle of a motor connected to the MD at address 0x00 to 90 degrees.
 /// ```rust
-/// use motor_lib::{USBHandle, USBError, md};
-/// fn main() -> Result<(), USBError> {
+/// use motor_lib::{USBHandle, Error, md};
+/// fn main() -> Result<(), Error> {
 ///     let handle = USBHandle;
 ///     md::send_angle(&handle, 0x00, 90)?;
 ///     Ok(())
 /// }
 /// ```
 pub fn send_angle(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     address: u8,
     angle: i16,
-) -> Result<MdStatus, crate::USBError> {
+) -> Result<MdStatus, crate::Error> {
     let angle_abs = angle.abs();
     let send_buf: [u8; 8] = [
         address,
@@ -185,26 +185,26 @@ pub fn send_angle(
 ///
 /// # Returns
 ///
-/// A result containing the status of the MD device or a USBError.
+/// A result containing the status of the MD device or a Error.
 ///
 /// # Example
 ///
 /// Sample code to set the duty cycle before and after pressing the limit switch on the MD at address 0x00.
 /// ```rust
-/// use motor_lib::{USBHandle, USBError, md};
-/// fn main() -> Result<(), USBError> {
+/// use motor_lib::{USBHandle, Error, md};
+/// fn main() -> Result<(), Error> {
 ///     let handle = USBHandle;
 ///     md::send_limsw(&handle, 0x00, 1, 1000, 500)?;
 ///     Ok(())
 /// }
 /// ```
 pub fn send_limsw(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     address: u8,
     port: u8,
     power: i16,
     after_power: i16,
-) -> Result<MdStatus, crate::USBError> {
+) -> Result<MdStatus, crate::Error> {
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
@@ -230,16 +230,16 @@ pub fn send_limsw(
 ///
 /// # Returns
 ///
-/// A result containing the status of the MD device or a USBError.
+/// A result containing the status of the MD device or a Error.
 ///
 /// # Example
 ///
 /// Sample code to rotate a motor at 100 rpm and continuously retrieve rotation speed data.
 /// ```rust
-/// use motor_lib::{USBHandle, USBError, md};
+/// use motor_lib::{USBHandle, Error, md};
 /// use std::thread::sleep;
 /// use std::time::Duration;
-/// fn main() -> Result<(), USBError> {
+/// fn main() -> Result<(), Error> {
 ///     let handle = USBHandle;
 ///     md::send_speed(&handle, 0x00, 100)?;
 ///     std::thread::sleep(Duration::from_secs(1));
@@ -248,10 +248,7 @@ pub fn send_limsw(
 ///     Ok(())
 /// }
 /// ```
-pub fn receive_status(
-    handle: &impl usb::USBHandleTrait,
-    address: u8,
-) -> Result<MdStatus, crate::USBError> {
+pub fn receive_status(handle: &impl HandleTrait, address: u8) -> Result<MdStatus, crate::Error> {
     let mut receive_buf = [0; 8];
     loop {
         handle

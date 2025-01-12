@@ -1,48 +1,35 @@
 //! This library provides an interface for controlling various motor devices via USB.
-use std::cell::RefCell;
-use std::time::Duration;
+use std::{fmt, time::Duration};
 
 pub mod blmd;
-pub mod grpc;
+pub mod device_type;
+mod implements;
 pub mod md;
 pub mod sd;
 pub mod smd;
 pub mod sr;
-pub mod usb;
-
-/// Enumeration of device type numbers.
-pub mod device_type {
-    /// 0x00
-    pub const MD: u8 = 0x00;
-    /// 0x10
-    pub const SD: u8 = 0x10;
-    /// 0x20
-    pub const SMD: u8 = 0x20;
-    /// 0x30
-    pub const BLMD: u8 = 0x30;
-    /// 0x40
-    pub const SR: u8 = 0x40;
-    /// 0x50
-    pub const SM: u8 = 0x50;
-    /// 0x60
-    pub const MASTER: u8 = 0x60;
-    /// 0xF0
-    pub const EMMERGENCY: u8 = 0xf0;
-}
-
-/// A handle to read and write an USB device.
-pub struct USBHandle {
-    handle: rusb::DeviceHandle<rusb::GlobalContext>,
-}
-
-pub struct GrpcHandle {
-    tokio_context: tokio::runtime::Runtime,
-    client: RefCell<grpc::pb::usb_can_client::UsbCanClient<tonic::transport::Channel>>,
-}
+pub use implements::grpc;
+pub use implements::grpc::GrpcHandle;
+pub use implements::usb;
+pub use implements::usb::USBHandle;
 
 #[derive(Debug)]
-pub enum USBError {
+pub enum Error {
     RUsbError(rusb::Error),
+}
+
+impl fmt::Display for crate::Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            crate::Error::RUsbError(e) => write!(f, "RUsbError: {}", e),
+        }
+    }
+}
+
+/// A trait defining the interface for USB handle operations.
+pub trait HandleTrait {
+    fn read_bulk(&self, data: &mut [u8], timeout: Duration) -> Result<usize, Error>;
+    fn write_bulk(&self, data: &[u8], timeout: Duration) -> Result<usize, Error>;
 }
 
 /// Sends an emergency signal to the drobo CAN device (for example, MD, SD, etc.)   
@@ -60,7 +47,7 @@ pub enum USBError {
 ///     send_emergency(&handle);
 /// }
 /// ```
-pub fn send_emergency(handle: &impl usb::USBHandleTrait) -> Result<usize, USBError> {
+pub fn send_emergency(handle: &impl HandleTrait) -> Result<usize, Error> {
     let send_buf: [u8; 8] = [
         device_type::EMMERGENCY,
         device_type::MASTER,
