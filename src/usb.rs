@@ -60,6 +60,12 @@ pub trait USBHandleTrait {
     fn write_bulk(&self, data: &[u8], timeout: time::Duration) -> Result<usize, crate::USBError>;
 }
 
+impl crate::USBHandle {
+    pub fn new() -> Self {
+        Self{}
+    }
+}
+
 /// Implementation of the USBHandleTrait for the USBHandle struct.
 impl USBHandleTrait for crate::USBHandle {
     fn read_bulk(

@@ -9,12 +9,17 @@ use pb::UsbCanRequest;
 
 impl GrpcHandle {
     pub fn new(
-        tokio_context: tokio::runtime::Runtime,
-        client: std::cell::RefCell<pb::usb_can_client::UsbCanClient<tonic::transport::Channel>>,
+        url: &str
     ) -> Self {
+        let tokio_context = tokio::runtime::Runtime::new().unwrap();
+        let client = tokio_context.block_on(async{
+            pb::usb_can_client::UsbCanClient::connect(url.to_string())
+                .await
+                .unwrap()
+        });
         Self {
-            tokio_context,
-            client,
+            tokio_context: tokio_context,
+            client: std::cell::RefCell::new(client),
         }
     }
 }
