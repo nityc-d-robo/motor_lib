@@ -6,7 +6,7 @@ use rusb::constants::{LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_OUT};
 use std::time;
 use tonic::transport::Server;
 
-const EP1: u8 = 1;
+const EP1: u8 = 1; // usb endpoint. use for implement usb_can_server::UsbCan trait.
 const TIMEOUT: time::Duration = time::Duration::from_millis(5000);
 
 #[derive(Debug)]
