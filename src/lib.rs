@@ -56,7 +56,7 @@ pub enum USBError {
 /// ```rust
 /// use motor_lib::{USBHandle, send_emergency};
 /// fn main() {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     send_emergency(&handle);
 /// }
 /// ```
