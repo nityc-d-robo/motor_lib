@@ -1,0 +1,16 @@
+syntax = "proto3";
+package motor_lib;
+
+import "google/protobuf/empty.proto";
+service UsbCan {
+    rpc Read (google.protobuf.Empty) returns (UsbCanResponse);
+    rpc Write (UsbCanRequest) returns (google.protobuf.Empty);
+}
+
+message UsbCanRequest {
+   bytes send_buf = 1;
+}
+
+message UsbCanResponse {
+    bytes recv_buf = 1;
+}

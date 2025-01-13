@@ -1,8 +1,9 @@
 //! This library provides an interface for controlling various motor devices via USB.
-
+use std::cell::RefCell;
 use std::time::Duration;
 
 pub mod blmd;
+pub mod grpc;
 pub mod md;
 pub mod sd;
 pub mod smd;
@@ -30,7 +31,14 @@ pub mod device_type {
 }
 
 /// A handle to read and write an USB device.
-pub struct USBHandle;
+pub struct USBHandle {
+    handle: rusb::DeviceHandle<rusb::GlobalContext>,
+}
+
+pub struct GrpcHandle {
+    tokio_context: tokio::runtime::Runtime,
+    client: RefCell<grpc::pb::usb_can_client::UsbCanClient<tonic::transport::Channel>>,
+}
 
 #[derive(Debug)]
 pub enum USBError {
@@ -48,7 +56,7 @@ pub enum USBError {
 /// ```rust
 /// use motor_lib::{USBHandle, send_emergency};
 /// fn main() {
-///     let handle = USBHandle;
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     send_emergency(&handle);
 /// }
 /// ```
