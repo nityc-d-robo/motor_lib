@@ -10,20 +10,20 @@ use pb::UsbCanRequest;
 
 /// A handle to read and write an gRPC device.
 pub struct GrpcHandle {
-    tokio_context: tokio::runtime::Runtime,
+    tokio_runtime: tokio::runtime::Runtime,
     client: RefCell<pb::usb_can_client::UsbCanClient<tonic::transport::Channel>>,
 }
 
 impl GrpcHandle {
     pub fn new(url: &str) -> Self {
-        let tokio_context = tokio::runtime::Runtime::new().unwrap();
-        let client = tokio_context.block_on(async {
+        let tokio_runtime = tokio::runtime::Runtime::new().unwrap();
+        let client = tokio_runtime.block_on(async {
             pb::usb_can_client::UsbCanClient::connect(url.to_string())
                 .await
                 .unwrap()
         });
         Self {
-            tokio_context: tokio_context,
+            tokio_runtime: tokio_runtime,
             client: std::cell::RefCell::new(client),
         }
     }
@@ -32,7 +32,7 @@ impl GrpcHandle {
 impl HandleTrait for GrpcHandle {
     fn read_bulk(&self, data: &mut [u8], _timeout: time::Duration) -> Result<usize, crate::Error> {
         let request = tonic::Request::new(());
-        let response = self.tokio_context.block_on(async {
+        let response = self.tokio_runtime.block_on(async {
             let response = self.client.borrow_mut().read(request).await.unwrap();
             return response.into_inner().recv_buf;
         });
@@ -43,7 +43,7 @@ impl HandleTrait for GrpcHandle {
         let request = tonic::Request::new(UsbCanRequest {
             send_buf: data.to_vec(),
         });
-        self.tokio_context.block_on(async {
+        self.tokio_runtime.block_on(async {
             self.client.borrow_mut().write(request).await.unwrap();
         });
         Ok(data.len())
