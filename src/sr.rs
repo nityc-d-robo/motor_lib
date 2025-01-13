@@ -2,7 +2,7 @@
 
 use std::time::Duration;
 
-use crate::{device_type, usb};
+use crate::{device_type, HandleTrait};
 
 pub mod mode {
     pub const STATUS: u8 = 0;
@@ -43,7 +43,7 @@ pub struct SrStatus {
 ///     sr::send_stop(&handle);
 /// }
 /// ```
-pub fn send_stop(handle: &impl usb::USBHandleTrait) {
+pub fn send_stop(handle: &impl HandleTrait) {
     let send_buf: [u8; 8] = [
         device_type::SR,
         device_type::MASTER,
@@ -76,7 +76,7 @@ pub fn send_stop(handle: &impl usb::USBHandleTrait) {
 ///     sr::send_start(&handle, 1000);
 /// }
 /// ```
-pub fn send_start(handle: &impl usb::USBHandleTrait, timeout: u16) {
+pub fn send_start(handle: &impl HandleTrait, timeout: u16) {
     let send_buf: [u8; 8] = [
         device_type::SR,
         device_type::MASTER,
@@ -114,7 +114,7 @@ pub fn send_start(handle: &impl usb::USBHandleTrait, timeout: u16) {
 /// }
 /// ```
 pub fn send_colors(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     red: u8,
     green: u8,
     blue: u8,

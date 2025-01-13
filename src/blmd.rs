@@ -1,4 +1,4 @@
-use crate::usb;
+use crate::HandleTrait;
 use advanced_pid::{prelude::*, VelPid};
 use std::time::Duration;
 
@@ -19,11 +19,11 @@ pub struct BlMdStatus {
 }
 
 pub fn send_velocity(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     pid: &mut VelPid,
     controller_id: u8,
     velocity: i16,
-) -> Result<BlMdStatus, crate::USBError> {
+) -> Result<BlMdStatus, crate::Error> {
     let status = match receive_status(handle, controller_id) {
         Ok(s) => s,
         Err(e) => return Err(e),
@@ -38,10 +38,10 @@ pub fn send_velocity(
 }
 
 pub fn send_current(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     controller_id: u8,
     current: i16,
-) -> Result<BlMdStatus, crate::USBError> {
+) -> Result<BlMdStatus, crate::Error> {
     let send_buf: [u8; 8] = [
         0x30,
         0,
@@ -59,9 +59,9 @@ pub fn send_current(
 }
 
 pub fn receive_status(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     controller_id: u8,
-) -> Result<BlMdStatus, crate::USBError> {
+) -> Result<BlMdStatus, crate::Error> {
     let mut receive_buf = [0; 8];
     loop {
         match handle.read_bulk(&mut receive_buf, Duration::from_millis(5000)) {
