@@ -28,6 +28,10 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     steps:
       - uses: actions/checkout@v2
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install protobuf-compiler
       - name: Run doc
         run: cargo doc --no-deps
       - name: Deploy
