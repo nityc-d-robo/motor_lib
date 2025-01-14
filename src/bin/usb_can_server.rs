@@ -3,7 +3,7 @@ pub mod pb {
 }
 
 use rusb::constants::{LIBUSB_ENDPOINT_IN, LIBUSB_ENDPOINT_OUT};
-use std::time;
+use std::{env, time};
 use tonic::transport::Server;
 
 const EP1: u8 = 1; // usb endpoint. use for implement usb_can_server::UsbCan trait.
@@ -49,8 +49,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     handle.set_auto_detach_kernel_driver(true).unwrap_or(());
     handle.claim_interface(B_INTERFACE_NUMBER).unwrap();
 
+    let args: Vec<String> = env::args().collect();
+    let socket_address = if args.get(1).unwrap().parse::<std::net::SocketAddr>() {
+        &args[1]
+    } else {
+        "127.0.0.1:50051"
+    };
+
     let server = UsbCanServer { handle };
-    let addr = "127.0.0.1:50051".parse().unwrap();
+    let addr = socket_address.parse().unwrap();
     println!("Server listening on {}", addr);
 
     Server::builder()
