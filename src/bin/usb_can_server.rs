@@ -58,6 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         args[1].parse().unwrap()
     } else {
         const DEFAULT_ADDRESS: &str = "127.0.0.1:50051";
+        eprintln!("Using default address.");
         DEFAULT_ADDRESS.parse().unwrap()
     };
 
