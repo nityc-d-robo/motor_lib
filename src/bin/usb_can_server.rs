@@ -1,5 +1,3 @@
-#![feature(let_chains)]
-
 pub mod pb {
     tonic::include_proto!("motor_lib");
 }
@@ -54,10 +52,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server = UsbCanServer { handle };
 
     let args: Vec<String> = env::args().collect();
-    let socket_address = if let Some(addr) = args.get(1)
-        && addr.parse::<std::net::SocketAddr>().is_ok()
+    let socket_address = if args.get(1).is_some()
+        && args[1].parse::<std::net::SocketAddr>().is_ok()
     {
-        addr.parse().unwrap()
+        args[1].parse().unwrap()
     } else {
         const DEFAULT_ADDRESS: &str = "127.0.0.1:50051";
         DEFAULT_ADDRESS.parse().unwrap()
