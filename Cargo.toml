@@ -8,3 +8,16 @@ edition = "2021"
 [dependencies]
 advanced-pid = "0.2.2"
 rusb = "0.9"
+tonic = "0.12"
+prost = "0.13"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+
+[build-dependencies]
+tonic-build = "*"
+
+[[example]]
+name = "sample_1"
+path = "src/bin/examples/sample_1.rs"
+[[example]]
+name = "sample_2"
+path = "src/bin/examples/sample_2.rs"

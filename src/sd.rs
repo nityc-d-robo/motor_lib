@@ -2,7 +2,7 @@
 
 use std::time::Duration;
 
-use crate::{device_type, usb};
+use crate::{device_type, HandleTrait};
 
 pub mod mode {
     pub const STATUS: u8 = 0;
@@ -37,26 +37,26 @@ pub struct SdStatus {
 ///
 /// # Returns
 ///
-/// A result containing the status of the SD device or a USBError.
+/// A result containing the status of the SD device or a Error.
 ///
 /// # Example
 ///
 /// Sets the state of the solenoid connected to port 0 of SD at address 0x10 to HIGH.
 /// It is recommended that the number set to the `power` argument be 0 or 1000.
 /// ```rust
-/// use motor_lib::{USBHandle, USBError, sd};
-/// fn main() -> Result<(), USBError> {
-///     let handle = USBHandle;
+/// use motor_lib::{USBHandle, Error, sd};
+/// fn main() -> Result<(), Error> {
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     sd::send_power(&handle, 0x10, 0, 1000)?;
 ///     Ok(())
 /// }
 /// ```
 pub fn send_power(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     address: u8,
     port: u8,
     power: i16,
-) -> Result<SdStatus, crate::USBError> {
+) -> Result<SdStatus, crate::Error> {
     let power_abs = power.abs();
     let send_buf: [u8; 8] = [
         address | device_type::SD,
@@ -85,26 +85,26 @@ pub fn send_power(
 ///
 /// # Returns
 ///
-/// A result containing the status of the SD device or a USBError.
+/// A result containing the status of the SD device or a Error.
 ///
 /// # Example
 ///
 /// Sets the state of solenoids connected to ports 0 and 1 of SD to LOW and HIGH.
 /// It is recommended that the number set to the `power_0` and `power_1` arguments be 0 or 1000.
 /// ```rust
-/// use motor_lib::{USBHandle, USBError, sd};
-/// fn main() -> Result<(), USBError> {
-///     let handle = USBHandle;
+/// use motor_lib::{USBHandle, Error, sd};
+/// fn main() -> Result<(), Error> {
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     sd::send_powers(&handle, 0x10, 0, 1000)?;
 ///     Ok(())
 /// }
 /// ```
 pub fn send_powers(
-    handle: &impl usb::USBHandleTrait,
+    handle: &impl HandleTrait,
     address: u8,
     power_0: i16,
     power_1: i16,
-) -> Result<SdStatus, crate::USBError> {
+) -> Result<SdStatus, crate::Error> {
     let power0_abs = power_0.abs();
     let power1_abs = power_1.abs();
 
@@ -133,24 +133,21 @@ pub fn send_powers(
 ///
 /// # Returns
 ///
-/// A result containing the status of the SD device or a USBError.
+/// A result containing the status of the SD device or a Error.
 ///
 /// # Example
 ///
 /// Sample code to retrieve status data from the SD at address 0x10.
 /// ```rust
-/// use motor_lib::{USBHandle, USBError, sd};
-/// fn main() -> Result<(), USBError> {
-///     let handle = USBHandle;
+/// use motor_lib::{USBHandle, Error, sd};
+/// fn main() -> Result<(), Error> {
+///     let handle = USBHandle::new(0x483, 0x5740, 1);
 ///     let status = sd::receive_status(&handle, 0x10)?;
 ///     println!("{:?}", status);
 ///     Ok(())
 /// }
 /// ```
-pub fn receive_status(
-    handle: &impl usb::USBHandleTrait,
-    address: u8,
-) -> Result<SdStatus, crate::USBError> {
+pub fn receive_status(handle: &impl HandleTrait, address: u8) -> Result<SdStatus, crate::Error> {
     let mut receive_buf = [0; 8];
     loop {
         handle
