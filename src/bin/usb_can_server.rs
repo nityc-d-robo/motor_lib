@@ -1,3 +1,5 @@
+#![feature(let_chains)]
+
 pub mod pb {
     tonic::include_proto!("motor_lib");
 }
@@ -49,20 +51,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     handle.set_auto_detach_kernel_driver(true).unwrap_or(());
     handle.claim_interface(B_INTERFACE_NUMBER).unwrap();
 
+    let server = UsbCanServer { handle };
+
     let args: Vec<String> = env::args().collect();
-    let socket_address = if args.get(1).unwrap().parse::<std::net::SocketAddr>() {
-        &args[1]
+    let socket_address = if let Some(addr) = args.get(1)
+        && addr.parse::<std::net::SocketAddr>().is_ok()
+    {
+        addr.parse().unwrap()
     } else {
-        "127.0.0.1:50051"
+        const DEFAULT_ADDRESS: &str = "127.0.0.1:50051";
+        DEFAULT_ADDRESS.parse().unwrap()
     };
 
-    let server = UsbCanServer { handle };
-    let addr = socket_address.parse().unwrap();
-    println!("Server listening on {}", addr);
+    println!("Server listening on {}", socket_address);
 
     Server::builder()
         .add_service(pb::usb_can_server::UsbCanServer::new(server))
-        .serve(addr)
+        .serve(socket_address)
         .await
         .unwrap();
     Ok(())
