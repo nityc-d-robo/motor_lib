@@ -1,4 +1,8 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tonic_build::compile_protos("proto/motor_lib.proto")?;
+    let file_descriptors = protox::compile(["motor_lib.proto"], ["proto/"]).unwrap();
+    tonic_build::configure()
+        .build_server(true)
+        .compile_fds(file_descriptors)
+        .unwrap();
     Ok(())
 }

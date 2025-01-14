@@ -13,7 +13,8 @@ prost = "0.13"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 
 [build-dependencies]
-tonic-build = "*"
+protox = "0.7"
+tonic-build = "0.12"
 
 [[example]]
 name = "sample_1"
