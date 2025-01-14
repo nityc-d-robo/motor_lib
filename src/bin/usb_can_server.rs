@@ -55,11 +55,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let socket_address = if args.get(1).is_some()
         && args[1].parse::<std::net::SocketAddr>().is_ok()
     {
-        args[1].parse()
+        args[1].parse().unwrap()
     } else {
         const DEFAULT_ADDRESS: &str = "127.0.0.1:50051";
-        DEFAULT_ADDRESS.parse()
-    }.unwrap();
+        DEFAULT_ADDRESS.parse().unwrap()
+    };
 
     println!("Server listening on {}", socket_address);
 
