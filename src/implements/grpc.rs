@@ -32,28 +32,31 @@ impl GrpcHandle {
 impl HandleTrait for GrpcHandle {
     fn read_bulk(&self, data: &mut [u8], _timeout: time::Duration) -> Result<usize, crate::Error> {
         let request = tonic::Request::new(());
-        let response = self.tokio_runtime.block_on(async {
-            let result = self.client.borrow_mut().read(request).await;
-            match result {
-                Ok(t) => t.into_inner().recv_buf,
-                Err(e) => {
-                    eprintln!("{e}");
-                    vec![]
-                }
-            }
-        });
-        data.copy_from_slice(&response);
-        Ok(response.len())
+        self.tokio_runtime.block_on(async {
+            let recv_buf = self
+                .client
+                .borrow_mut()
+                .read(request)
+                .await?
+                .into_inner()
+                .recv_buf;
+            data.copy_from_slice(&recv_buf);
+            Ok(recv_buf.len())
+        })
     }
     fn write_bulk(&self, data: &[u8], _timeout: time::Duration) -> Result<usize, crate::Error> {
         let request = tonic::Request::new(WriteRequest {
             send_buf: data.to_vec(),
         });
         self.tokio_runtime.block_on(async {
-            self.client.borrow_mut().write(request).await.map_or_else(
-                |e| Err(e.into()),
-                |t| Ok(t.into_inner().size.try_into().unwrap_or_default()),
-            )
+            Ok(self
+                .client
+                .borrow_mut()
+                .write(request)
+                .await?
+                .into_inner()
+                .size
+                .try_into()?)
         })
     }
 }
@@ -61,5 +64,10 @@ impl HandleTrait for GrpcHandle {
 impl From<tonic::Status> for crate::Error {
     fn from(error: tonic::Status) -> Self {
         crate::Error::GrpcError(error)
+    }
+}
+impl From<std::num::TryFromIntError> for crate::Error {
+    fn from(error: std::num::TryFromIntError) -> Self {
+        crate::Error::TryFromIntError(error)
     }
 }

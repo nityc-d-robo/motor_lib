@@ -16,14 +16,16 @@ pub use implements::usb::USBHandle;
 #[derive(Debug)]
 pub enum Error {
     RUsbError(rusb::Error),
-    GrpcError(tonic::Status)
+    GrpcError(tonic::Status),
+    TryFromIntError(std::num::TryFromIntError),
 }
 
 impl fmt::Display for crate::Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             crate::Error::RUsbError(e) => write!(f, "RUsbError: {}", e),
-            crate::Error::GrpcError(e) => write!(f, "gRPCError: {}", e)
+            crate::Error::GrpcError(e) => write!(f, "gRPCError: {}", e),
+            crate::Error::TryFromIntError(e) => write!(f, "TryFromIntError: {}", e),
         }
     }
 }
