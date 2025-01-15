@@ -7,7 +7,6 @@ use std::{env, time};
 use tonic::transport::Server;
 
 const EP1: u8 = 1; // usb endpoint. use for implement usb_can_server::UsbCan trait.
-const MAX_BUF_SIZE: usize = 1024;
 const TIMEOUT: time::Duration = time::Duration::from_millis(5000);
 
 #[derive(Debug)]
@@ -19,9 +18,9 @@ pub struct UsbCanServer {
 impl pb::usb_can_server::UsbCan for UsbCanServer {
     async fn read(
         &self,
-        _request: tonic::Request<()>,
+        _request: tonic::Request<pb::ReadRequest>,
     ) -> Result<tonic::Response<pb::ReadResponse>, tonic::Status> {
-        let mut recv_buf = Vec::with_capacity(MAX_BUF_SIZE);
+        let mut recv_buf = vec![0; _request.into_inner().size as usize];
         self.handle
             .read_bulk(LIBUSB_ENDPOINT_IN | EP1, &mut recv_buf, TIMEOUT)
             .unwrap_or_default();

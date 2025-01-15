@@ -31,7 +31,7 @@ impl GrpcHandle {
 
 impl HandleTrait for GrpcHandle {
     fn read_bulk(&self, data: &mut [u8], _timeout: time::Duration) -> Result<usize, crate::Error> {
-        let request = tonic::Request::new(());
+        let request = tonic::Request::new(pb::ReadRequest { size: data.len() as i32 });
         self.tokio_runtime.block_on(async {
             let response = self.client.borrow_mut().read(request).await?;
             let recv_buf = response.into_inner().recv_buf;
