@@ -3,14 +3,18 @@ package motor_lib;
 
 import "google/protobuf/empty.proto";
 service UsbCan {
-    rpc Read (google.protobuf.Empty) returns (UsbCanResponse);
-    rpc Write (UsbCanRequest) returns (google.protobuf.Empty);
+    rpc Read (google.protobuf.Empty) returns (ReadResponse);
+    rpc Write (WriteRequest) returns (WriteResponse);
 }
 
-message UsbCanRequest {
+message ReadResponse {
+    bytes recv_buf = 1;
+}
+
+message WriteRequest {
    bytes send_buf = 1;
 }
 
-message UsbCanResponse {
-    bytes recv_buf = 1;
+message WriteResponse {
+    int32 size = 1;
 }
