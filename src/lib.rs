@@ -41,6 +41,10 @@ pub trait HandleTrait {
 ///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 ///
+/// # Returns
+///
+/// A result containing the number of bytes written or an Error.
+///
 /// # Example
 /// ```rust
 /// use motor_lib::{USBHandle, Error, send_emergency};

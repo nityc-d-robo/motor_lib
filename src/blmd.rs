@@ -18,6 +18,18 @@ pub struct BlMdStatus {
     pub current: i16,
 }
 
+/// Sends a velocity command to the specified device.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the HandleTrait.
+/// * `pid` - A mutable reference to a VelPid object.
+/// * `controller_id` - The ID of the controller.
+/// * `velocity` - The desired velocity.
+///
+/// # Returns
+///
+/// A result containing the status of the device or an Error.
 pub fn send_velocity(
     handle: &impl HandleTrait,
     pid: &mut VelPid,

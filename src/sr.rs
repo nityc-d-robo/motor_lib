@@ -33,6 +33,10 @@ pub struct SrStatus {
 ///
 /// * `handle` - A reference to an object implementing the USBHandleTrait.
 ///
+/// # Returns
+/// 
+/// A result indicating success or an Error.
+/// 
 /// # Example
 ///
 /// Sample code to send a stop command to the SR device.
