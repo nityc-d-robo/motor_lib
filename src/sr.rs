@@ -38,12 +38,13 @@ pub struct SrStatus {
 /// Sample code to send a stop command to the SR device.
 /// ```rust
 /// use motor_lib::{USBHandle, sr};
-/// fn main() {
+/// fn main() -> Result<(), motor_lib::Error> {
 ///     let handle = USBHandle::new(0x483, 0x5740, 1);
-///     sr::send_stop(&handle);
+///     sr::send_stop(&handle)?;
+///     Ok(())
 /// }
 /// ```
-pub fn send_stop(handle: &impl HandleTrait) {
+pub fn send_stop(handle: &impl HandleTrait) -> Result<(), crate::Error> {
     let send_buf: [u8; 8] = [
         device_type::SR,
         device_type::MASTER,
@@ -54,9 +55,8 @@ pub fn send_stop(handle: &impl HandleTrait) {
         0,
         0,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(5000))
-        .unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
+    Ok(())
 }
 
 /// Sends a start command to the SR device with a specified timeout.
@@ -71,12 +71,13 @@ pub fn send_stop(handle: &impl HandleTrait) {
 /// Sample code to send a start command to the SR device with a timeout of 1000 milliseconds.
 /// ```rust
 /// use motor_lib::{USBHandle, sr};
-/// fn main() {
+/// fn main() -> Result<(), motor_lib::Error> {
 ///     let handle = USBHandle::new(0x483, 0x5740, 1);
-///     sr::send_start(&handle, 1000);
+///     sr::send_start(&handle, 1000)?;
+///     Ok(())
 /// }
 /// ```
-pub fn send_start(handle: &impl HandleTrait, timeout: u16) {
+pub fn send_start(handle: &impl HandleTrait, timeout: u16) -> Result<(), crate::Error> {
     let send_buf: [u8; 8] = [
         device_type::SR,
         device_type::MASTER,
@@ -87,9 +88,8 @@ pub fn send_start(handle: &impl HandleTrait, timeout: u16) {
         0,
         0,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(timeout.into()))
-        .unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(timeout.into()))?;
+    Ok(())
 }
 
 /// Sends color settings to the LED strip connected to the SR device.
@@ -108,9 +108,10 @@ pub fn send_start(handle: &impl HandleTrait, timeout: u16) {
 /// Sample code to set the color of the LED strip connected to the SR device to red, green, and blue with a timeout of 1000 milliseconds.
 /// ```rust
 /// use motor_lib::{USBHandle, sr};
-/// fn main() {
+/// fn main() -> Result<(), motor_lib::Error> {
 ///     let handle = USBHandle::new(0x483, 0x5740, 1);
-///     sr::send_colors(&handle, 255, 0, 0, 0.0, 1000);
+///     sr::send_colors(&handle, 255, 0, 0, 0.0, 1000)?;
+///     Ok(())
 /// }
 /// ```
 pub fn send_colors(
@@ -120,7 +121,7 @@ pub fn send_colors(
     blue: u8,
     freq: f32,
     timeout: u16,
-) {
+) -> Result<(), crate::Error> {
     let send_buf: [u8; 8] = [
         device_type::SR,
         device_type::MASTER,
@@ -131,7 +132,6 @@ pub fn send_colors(
         blue,
         (freq * 4.0) as u8,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(timeout.into()))
-        .unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(timeout.into()))?;
+    Ok(())
 }
