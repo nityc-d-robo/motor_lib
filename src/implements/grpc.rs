@@ -33,13 +33,8 @@ impl HandleTrait for GrpcHandle {
     fn read_bulk(&self, data: &mut [u8], _timeout: time::Duration) -> Result<usize, crate::Error> {
         let request = tonic::Request::new(());
         self.tokio_runtime.block_on(async {
-            let recv_buf = self
-                .client
-                .borrow_mut()
-                .read(request)
-                .await?
-                .into_inner()
-                .recv_buf;
+            let response = self.client.borrow_mut().read(request).await?;
+            let recv_buf = response.into_inner().recv_buf;
             data.copy_from_slice(&recv_buf);
             Ok(recv_buf.len())
         })
@@ -49,14 +44,9 @@ impl HandleTrait for GrpcHandle {
             send_buf: data.to_vec(),
         });
         self.tokio_runtime.block_on(async {
-            Ok(self
-                .client
-                .borrow_mut()
-                .write(request)
-                .await?
-                .into_inner()
-                .size
-                .try_into()?)
+            let response = self.client.borrow_mut().write(request).await?;
+            let size = response.into_inner().size.try_into()?;
+            Ok(size)
         })
     }
 }
@@ -67,7 +57,7 @@ impl From<tonic::Status> for crate::Error {
     }
 }
 impl From<std::num::TryFromIntError> for crate::Error {
-    fn from(error: std::num::TryFromIntError) -> Self {
-        crate::Error::TryFromIntError(error)
+    fn from(_: std::num::TryFromIntError) -> Self {
+        crate::Error::RUsbError(rusb::Error::Other)
     }
 }

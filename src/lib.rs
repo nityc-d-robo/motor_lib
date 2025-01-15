@@ -17,7 +17,6 @@ pub use implements::usb::USBHandle;
 pub enum Error {
     RUsbError(rusb::Error),
     GrpcError(tonic::Status),
-    TryFromIntError(std::num::TryFromIntError),
 }
 
 impl fmt::Display for crate::Error {
@@ -25,7 +24,6 @@ impl fmt::Display for crate::Error {
         match self {
             crate::Error::RUsbError(e) => write!(f, "RUsbError: {}", e),
             crate::Error::GrpcError(e) => write!(f, "gRPCError: {}", e),
-            crate::Error::TryFromIntError(e) => write!(f, "TryFromIntError: {}", e),
         }
     }
 }
