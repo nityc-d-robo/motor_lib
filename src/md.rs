@@ -75,9 +75,7 @@ pub fn send_pwm(
         0,
         0,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(5000))
-        .unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
     return receive_status(handle, address);
 }
 
@@ -167,9 +165,7 @@ pub fn send_angle(
         0,
         0,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(5000))
-        .unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
     return receive_status(handle, address);
 }
 
@@ -215,9 +211,7 @@ pub fn send_limsw(
         ((after_power >> 8) & 0xff) as u8,
         (after_power & 0xff) as u8,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(5000))
-        .unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
     return receive_status(handle, address);
 }
 
@@ -251,9 +245,7 @@ pub fn send_limsw(
 pub fn receive_status(handle: &impl HandleTrait, address: u8) -> Result<MdStatus, crate::Error> {
     let mut receive_buf = [0; 8];
     loop {
-        handle
-            .read_bulk(&mut receive_buf, Duration::from_millis(5000))
-            .unwrap();
+        handle.read_bulk(&mut receive_buf, Duration::from_millis(5000))?;
         if address == receive_buf[0] {
             let rpm = (receive_buf[4] as i16) << 8 | (receive_buf[5] as i16);
             return Ok(MdStatus {

@@ -18,25 +18,28 @@ pub struct UsbCanServer {
 impl pb::usb_can_server::UsbCan for UsbCanServer {
     async fn read(
         &self,
-        _request: tonic::Request<()>,
-    ) -> Result<tonic::Response<pb::UsbCanResponse>, tonic::Status> {
-        let mut recv_buf = vec![0; 8];
+        _request: tonic::Request<pb::ReadRequest>,
+    ) -> Result<tonic::Response<pb::ReadResponse>, tonic::Status> {
+        let mut recv_buf = vec![0; _request.into_inner().size as usize];
         self.handle
             .read_bulk(LIBUSB_ENDPOINT_IN | EP1, &mut recv_buf, TIMEOUT)
-            .unwrap();
-        Ok(tonic::Response::new(pb::UsbCanResponse {
+            .unwrap_or_default();
+        Ok(tonic::Response::new(pb::ReadResponse {
             recv_buf: recv_buf,
         }))
     }
     async fn write(
         &self,
-        _request: tonic::Request<pb::UsbCanRequest>,
-    ) -> Result<tonic::Response<()>, tonic::Status> {
+        _request: tonic::Request<pb::WriteRequest>,
+    ) -> Result<tonic::Response<pb::WriteResponse>, tonic::Status> {
         let send_buf = _request.into_inner().send_buf;
-        self.handle
+        let option = self
+            .handle
             .write_bulk(LIBUSB_ENDPOINT_OUT | EP1, &send_buf, TIMEOUT)
-            .unwrap();
-        Ok(tonic::Response::<()>::new(()))
+            .ok();
+        Ok(tonic::Response::new(pb::WriteResponse {
+            size: option.and_then(|size| size.try_into().ok()).unwrap_or(-1),
+        }))
     }
 }
 
@@ -52,14 +55,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server = UsbCanServer { handle };
 
     let args: Vec<String> = env::args().collect();
-    let socket_address = if args.get(1).is_some()
-        && args[1].parse::<std::net::SocketAddr>().is_ok()
-    {
-        args[1].parse().unwrap()
-    } else {
-        const DEFAULT_ADDRESS: &str = "127.0.0.1:50051";
-        eprintln!("Using default address.");
-        DEFAULT_ADDRESS.parse().unwrap()
+    const DEFAULT_ADDRESS: &str = "127.0.0.1:50051";
+    let socket_address = match args.get(1) {
+        Some(str) => str.parse().unwrap(), // コマンドライン引数にヘンな値が入ってたら落とす
+        None => DEFAULT_ADDRESS.parse().unwrap(), // プログラマの責任で安全にunwrapできる
     };
 
     println!("Server listening on {}", socket_address);

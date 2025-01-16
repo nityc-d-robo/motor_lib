@@ -6,7 +6,7 @@ pub mod pb {
     tonic::include_proto!("motor_lib");
 }
 
-use pb::UsbCanRequest;
+use pb::WriteRequest;
 
 /// A handle to read and write an gRPC device.
 pub struct GrpcHandle {
@@ -31,21 +31,33 @@ impl GrpcHandle {
 
 impl HandleTrait for GrpcHandle {
     fn read_bulk(&self, data: &mut [u8], _timeout: time::Duration) -> Result<usize, crate::Error> {
-        let request = tonic::Request::new(());
-        let response = self.tokio_runtime.block_on(async {
-            let response = self.client.borrow_mut().read(request).await.unwrap();
-            return response.into_inner().recv_buf;
-        });
-        data.copy_from_slice(&response);
-        Ok(response.len())
+        let request = tonic::Request::new(pb::ReadRequest { size: data.len() as i32 });
+        self.tokio_runtime.block_on(async {
+            let response = self.client.borrow_mut().read(request).await?;
+            let recv_buf = response.into_inner().recv_buf;
+            data.copy_from_slice(&recv_buf);
+            Ok(recv_buf.len())
+        })
     }
     fn write_bulk(&self, data: &[u8], _timeout: time::Duration) -> Result<usize, crate::Error> {
-        let request = tonic::Request::new(UsbCanRequest {
+        let request = tonic::Request::new(WriteRequest {
             send_buf: data.to_vec(),
         });
         self.tokio_runtime.block_on(async {
-            self.client.borrow_mut().write(request).await.unwrap();
-        });
-        Ok(data.len())
+            let response = self.client.borrow_mut().write(request).await?;
+            let size = response.into_inner().size.try_into()?;
+            Ok(size)
+        })
+    }
+}
+
+impl From<tonic::Status> for crate::Error {
+    fn from(error: tonic::Status) -> Self {
+        crate::Error::GrpcError(error)
+    }
+}
+impl From<std::num::TryFromIntError> for crate::Error {
+    fn from(_: std::num::TryFromIntError) -> Self {
+        crate::Error::RUsbError(rusb::Error::Other)
     }
 }
