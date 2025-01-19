@@ -133,7 +133,7 @@ pub fn receive_status(handle: &impl HandleTrait, address: u8) -> Result<SmdStatu
     let mut receive_buf = [0; 8];
     loop {
         handle.read_bulk(&mut receive_buf, Duration::from_millis(5000))?;
-        if (address | device_type::SD) == receive_buf[0] {
+        if (address | device_type::SMD) == receive_buf[0] {
             return Ok(SmdStatus {
                 address: receive_buf[0],
                 semi_id: receive_buf[1],
