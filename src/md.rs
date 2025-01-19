@@ -154,14 +154,13 @@ pub fn send_angle(
     address: u8,
     angle: i16,
 ) -> Result<MdStatus, crate::Error> {
-    let angle_abs = angle.abs();
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
         mode::ANGLE,
-        if angle >= 0 { 0 } else { 1 },
-        ((angle_abs >> 8) & 0xff) as u8,
-        (angle_abs & 0xff) as u8,
+        0,
+        ((angle >> 8) & 0xff) as u8,
+        (angle & 0xff) as u8,
         0,
         0,
     ];
