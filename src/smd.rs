@@ -46,15 +46,15 @@ pub fn send_angle(
     handle: &impl HandleTrait,
     address: u8,
     port: u8,
-    angle: u8,
+    angle: i16,
 ) -> Result<SmdStatus, crate::Error> {
     let send_buf: [u8; 8] = [
         address | device_type::SMD,
         device_type::MASTER,
         mode::ANGLE,
         port,
-        angle,
-        0,
+        ((angle >> 8) & 0xff) as u8,
+        (angle & 0xff) as u8,
         0,
         0,
     ];
@@ -89,18 +89,18 @@ pub fn send_angle(
 pub fn send_angles(
     handle: &impl HandleTrait,
     address: u8,
-    angle_0: u8,
-    angle_1: u8,
+    angle_0: i16,
+    angle_1: i16,
 ) -> Result<SmdStatus, crate::Error> {
     let send_buf: [u8; 8] = [
         address | device_type::SMD,
         device_type::MASTER,
         mode::ANGLES,
         0,
-        angle_0,
-        angle_1,
-        0,
-        0,
+        ((angle_0 >> 8) & 0xff) as u8,
+        (angle_0 & 0xff) as u8,
+        ((angle_1 >> 8) & 0xff) as u8,
+        (angle_1 & 0xff) as u8,
     ];
     handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
     return receive_status(handle, address);
@@ -133,7 +133,7 @@ pub fn receive_status(handle: &impl HandleTrait, address: u8) -> Result<SmdStatu
     let mut receive_buf = [0; 8];
     loop {
         handle.read_bulk(&mut receive_buf, Duration::from_millis(5000))?;
-        if (address | device_type::SD) == receive_buf[0] {
+        if (address | device_type::SMD) == receive_buf[0] {
             return Ok(SmdStatus {
                 address: receive_buf[0],
                 semi_id: receive_buf[1],
