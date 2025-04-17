@@ -23,11 +23,11 @@ jobs:
     needs: build
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Run doc
         run: cargo doc --no-deps
       - name: Deploy
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: target/doc
   deploy:
@@ -42,4 +42,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
