@@ -115,7 +115,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .product_id(PRODUCT_ID)
                 .register(&context, Box::new(HotPlugHandler::new(Arc::clone(&handle))))?,
         );
-        std::thread::spawn(move || {
+        tokio::task::spawn_blocking(move || {
+            // regの所有権をthreadに移している．
             let _reg = reg;
             loop {
                 context.handle_events(None).unwrap();
