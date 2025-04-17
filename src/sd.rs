@@ -68,9 +68,7 @@ pub fn send_power(
         0,
         0,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(5000))
-        .unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
     return receive_status(handle, address);
 }
 
@@ -118,9 +116,7 @@ pub fn send_powers(
         ((power1_abs >> 8) & 0xff) as u8,
         (power1_abs & 0xff) as u8,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(5000))
-        .unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
     return receive_status(handle, address);
 }
 
@@ -150,9 +146,7 @@ pub fn send_powers(
 pub fn receive_status(handle: &impl HandleTrait, address: u8) -> Result<SdStatus, crate::Error> {
     let mut receive_buf = [0; 8];
     loop {
-        handle
-            .read_bulk(&mut receive_buf, Duration::from_millis(5000))
-            .unwrap();
+        handle.read_bulk(&mut receive_buf, Duration::from_millis(5000))?;
         if (address | device_type::SD) == receive_buf[0] {
             return Ok(SdStatus {
                 address: receive_buf[0],

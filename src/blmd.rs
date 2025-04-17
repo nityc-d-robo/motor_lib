@@ -1,5 +1,4 @@
 use crate::HandleTrait;
-use advanced_pid::{prelude::*, VelPid};
 use std::time::Duration;
 
 pub mod mode {
@@ -18,43 +17,55 @@ pub struct BlMdStatus {
     pub current: i16,
 }
 
+/// Sends a velocity command to the specified device.
+///
+/// # Arguments
+///
+/// * `handle` - A reference to an object implementing the HandleTrait.
+/// * `pid` - A mutable reference to a VelPid object.
+/// * `controller_id` - The ID of the controller.
+/// * `velocity` - The desired velocity.
+///
+/// # Returns
+///
+/// A result containing the status of the device or an Error.
 pub fn send_velocity(
     handle: &impl HandleTrait,
-    pid: &mut VelPid,
+    address: u8,
     controller_id: u8,
     velocity: i16,
 ) -> Result<BlMdStatus, crate::Error> {
-    let status = match receive_status(handle, controller_id) {
-        Ok(s) => s,
-        Err(e) => return Err(e),
-    };
-    let actual = status.speed;
-    let output = pid.update(velocity as f32, actual as f32, 0.3) as i16; // 制御周期100Hz
-    let return_status = send_current(handle, controller_id, output);
-    if cfg!(test) {
-        println!("{},{},{}", actual, output, status.speed);
-    }
-    return return_status;
+    let send_buf: [u8; 8] = [
+        address,
+        controller_id,
+        mode::VELOCITY,
+        0,
+        ((velocity >> 8) & 0xff) as u8,
+        (velocity & 0xff) as u8,
+        0,
+        0,
+    ];
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
+    return receive_status(handle, controller_id);
 }
 
 pub fn send_current(
     handle: &impl HandleTrait,
+    address: u8,
     controller_id: u8,
     current: i16,
 ) -> Result<BlMdStatus, crate::Error> {
     let send_buf: [u8; 8] = [
-        0x30,
-        0,
+        address,
         controller_id,
+        mode::CURRENT,
+        0,
         ((current >> 8) & 0xff) as u8,
         (current & 0xff) as u8,
         0,
         0,
-        0,
     ];
-    handle
-        .write_bulk(&send_buf, Duration::from_millis(5000))
-        .unwrap();
+    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
     return receive_status(handle, controller_id);
 }
 
