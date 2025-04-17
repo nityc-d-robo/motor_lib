@@ -31,7 +31,7 @@ impl HotPlugHandler {
 impl<T: UsbContext> rusb::Hotplug<T> for HotPlugHandler {
     fn device_arrived(&mut self, _: Device<T>) {
         let mut locked_handle = self.handle.lock().unwrap();
-        if (locked_handle).is_some() {
+        if (locked_handle).is_none() {
             let handle = rusb::open_device_with_vid_pid(VENDOR_ID, PRODUCT_ID).unwrap();
             handle.set_auto_detach_kernel_driver(true).unwrap_or(());
             handle.claim_interface(B_INTERFACE_NUMBER).unwrap();
@@ -100,16 +100,11 @@ impl pb::usb_can_server::UsbCan for UsbCanServer {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let handle = Arc::new(Mutex::new(Some(
-        rusb::open_device_with_vid_pid(VENDOR_ID, PRODUCT_ID).unwrap(),
-    )));
-    let locked_handle = handle.lock().unwrap();
-    if let Some(ref device_handle) = *locked_handle {
-        device_handle
-            .set_auto_detach_kernel_driver(true)
-            .unwrap_or(());
-        device_handle.claim_interface(B_INTERFACE_NUMBER).unwrap();
-    }
+    let handle = rusb::open_device_with_vid_pid(VENDOR_ID, PRODUCT_ID).unwrap();
+    handle.set_auto_detach_kernel_driver(true).unwrap_or(());
+    handle.claim_interface(B_INTERFACE_NUMBER).unwrap();
+
+    let handle = Arc::new(Mutex::new(Some(handle)));
 
     if rusb::has_hotplug() {
         let context = Context::new()?;
@@ -120,7 +115,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .product_id(PRODUCT_ID)
                 .register(&context, Box::new(HotPlugHandler::new(Arc::clone(&handle))))?,
         );
-        tokio::task::spawn_blocking(move || {
+        std::thread::spawn(move || {
             let _reg = reg;
             loop {
                 context.handle_events(None).unwrap();
