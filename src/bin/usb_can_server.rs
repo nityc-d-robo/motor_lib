@@ -123,7 +123,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 
-    let server = UsbCanServer::new(Arc::clone(&handle));
+    let server = UsbCanServer::new(handle);
 
     let args: Vec<String> = env::args().collect();
     const DEFAULT_ADDRESS: &str = "127.0.0.1:50051";
