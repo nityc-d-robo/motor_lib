@@ -113,14 +113,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if rusb::has_hotplug() {
         let context = Context::new()?;
-        let _: Option<rusb::Registration<Context>> = Some(
+        let reg: Option<rusb::Registration<Context>> = Some(
             HotplugBuilder::new()
-                .enumerate(true)
+                .enumerate(false)
                 .vendor_id(VENDOR_ID)
                 .product_id(PRODUCT_ID)
                 .register(&context, Box::new(HotPlugHandler::new(Arc::clone(&handle))))?,
         );
         tokio::task::spawn_blocking(move || {
+            let _reg = reg;
             loop {
                 context.handle_events(None).unwrap();
             }
