@@ -75,7 +75,7 @@ pub fn send_pwm(
         0,
         0,
     ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
+    handle.write_bulk(&send_buf, Duration::from_millis(5000)).unwrap();
 }
 
 /// Sends a command to set the rotation speed on the specified MD device.
