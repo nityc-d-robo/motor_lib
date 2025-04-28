@@ -108,7 +108,7 @@ pub fn send_speed(
     velocity: i16,
 ) -> Result<MdStatus, crate::Error> {
     if velocity == 0 {
-        send_pwm(handle, address, 0)?;
+        send_pwm(handle, address, 0);
     } else {
         let send_buf: [u8; 8] = [
             address,
