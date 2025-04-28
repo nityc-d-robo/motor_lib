@@ -64,7 +64,7 @@ pub fn send_pwm(
     handle: &impl HandleTrait,
     address: u8,
     power: i16,
-) -> Result<MdStatus, crate::Error> {
+) {
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
@@ -76,7 +76,6 @@ pub fn send_pwm(
         0,
     ];
     handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
 }
 
 /// Sends a command to set the rotation speed on the specified MD device.
