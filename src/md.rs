@@ -64,7 +64,7 @@ pub fn send_pwm(
     handle: &impl HandleTrait,
     address: u8,
     power: i16,
-) -> Result<MdStatus, crate::Error> {
+) {
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
@@ -75,8 +75,7 @@ pub fn send_pwm(
         0,
         0,
     ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
 }
 
 /// Sends a command to set the rotation speed on the specified MD device.
@@ -107,23 +106,18 @@ pub fn send_speed(
     handle: &impl HandleTrait,
     address: u8,
     velocity: i16,
-) -> Result<MdStatus, crate::Error> {
-    if velocity == 0 {
-        send_pwm(handle, address, 0)?;
-    } else {
-        let send_buf: [u8; 8] = [
-            address,
-            device_type::MASTER,
-            mode::SPEED,
-            0,
-            ((velocity >> 8) & 0xff) as u8,
-            (velocity & 0xff) as u8,
-            0,
-            0,
-        ];
-        handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    }
-    return receive_status(handle, address);
+) {
+    let send_buf: [u8; 8] = [
+        address,
+        device_type::MASTER,
+        mode::SPEED,
+        0,
+        ((velocity >> 8) & 0xff) as u8,
+        (velocity & 0xff) as u8,
+        0,
+        0,
+    ];
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
 }
 
 /// Sends a command to set the angle on the specified MD device.
@@ -153,7 +147,7 @@ pub fn send_angle(
     handle: &impl HandleTrait,
     address: u8,
     angle: i16,
-) -> Result<MdStatus, crate::Error> {
+) {
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
@@ -164,8 +158,7 @@ pub fn send_angle(
         0,
         0,
     ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
 }
 
 /// Sends a command to set the duty cycle on before and after pressing the limit switch.
@@ -199,7 +192,7 @@ pub fn send_limsw(
     port: u8,
     power: i16,
     after_power: i16,
-) -> Result<MdStatus, crate::Error> {
+) {
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
@@ -210,8 +203,7 @@ pub fn send_limsw(
         ((after_power >> 8) & 0xff) as u8,
         (after_power & 0xff) as u8,
     ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
 }
 
 /// Receive a data from the specified MD device.
