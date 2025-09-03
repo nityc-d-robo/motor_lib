@@ -7,6 +7,7 @@ mod implements;
 pub mod md;
 pub mod sd;
 pub mod smd;
+pub mod rmd;
 pub mod sr;
 pub use implements::grpc;
 pub use implements::grpc::GrpcHandle;

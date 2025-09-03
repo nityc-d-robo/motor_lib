@@ -21,3 +21,29 @@ message WriteRequest {
 message WriteResponse {
     int32 size = 1;
 }
+
+package can_service;
+
+// CANフレームのデータ構造
+message CanFrame {
+  uint32 id = 1;
+  bytes data = 2;
+  uint32 dlc = 3;
+}
+
+// 利用可能なデバイスの情報
+message DeviceInfo {
+  string id = 1;         // シリアル番号など一意なID
+  string description = 2; // デバイス名
+}
+
+service CanBus {
+  // CANメッセージを送信する (単発リクエスト)
+  rpc SendMessage(CanFrame) returns (google.protobuf.Empty) {}
+
+  // 指定したデバイスからCANメッセージを継続的に受信する (サーバーサイドストリーミング)
+  rpc StreamMessages(stream CanFrame) returns (stream CanFrame);
+
+  // 利用可能なデバイスの一覧を取得する
+  rpc ListDevices(google.protobuf.Empty) returns (stream DeviceInfo) {}
+}
