@@ -37,32 +37,21 @@ pub struct RmStatus {
 
 pub fn send_current( 
     handle: &impl HandleTrait, 
-    id: u8, 
-    current: f32, 
+    identifier: i32, 
+    current: [f32;4], 
 ) { 
-    if id < 1 || id > 8 { 
-        return; 
-    } 
-
-    let (identifier, data_index) = if id <= 4 { 
-        (0x200, (id - 1) * 2) 
-    } else { 
-        (0x1FF, (id - 5) * 2) 
-    }; 
-
-    // Map current from -20.0~20.0A to -16384~16384 (i16) 
-    let current_i16 = (current * 819.2).clamp(-16384.0, 16384.0) as i16; 
-
+    // Map current from -20.0~20.0A to -16384~16384 (i16)
     let mut send_buf: [u8; 10] = [0; 10]; 
 
-    // [0], [1] にCAN IDを格納
     send_buf[0] = ((identifier >> 8) & 0xFF) as u8; 
     send_buf[1] = (identifier & 0xFF) as u8; 
 
-    let payload_index = 2 + data_index as usize;
-    send_buf[payload_index] = (current_i16 >> 8) as u8;
-    send_buf[payload_index + 1] = current_i16 as u8;
-
+    for i in 0..current.len() {
+        let current_i16 = (current[i] * 819.2).clamp(-16384.0, 16384.0) as i16;
+        let payload_index = i * 2 + 2 as usize;
+        send_buf[payload_index] = (current_i16 >> 8) as u8;
+        send_buf[payload_index + 1] = current_i16 as u8;
+    }
     let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000)); 
 }
 
