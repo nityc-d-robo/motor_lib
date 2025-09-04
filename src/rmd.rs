@@ -55,6 +55,24 @@ pub fn send_current(
     let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000)); 
 }
 
+pub fn send_speed( 
+    handle: &impl HandleTrait, 
+    identifier: i32, 
+    target_rpm: [i32;4], 
+) { 
+    let mut send_buf: [u8; 10] = [0; 10]; 
+
+    send_buf[0] = ((identifier >> 8) & 0xFF) as u8; 
+    send_buf[1] = (identifier & 0xFF) as u8; 
+
+    for i in 0..target_rpm.len() {
+        let payload_index = i * 2 + 2 as usize;
+        send_buf[payload_index] = (target_rpm[i] >> 8) as u8;
+        send_buf[payload_index + 1] = target_rpm[i] as u8;
+    }
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000)); 
+}
+
 /// Receives feedback data from a specified C620 controller.
 ///
 /// # Arguments
