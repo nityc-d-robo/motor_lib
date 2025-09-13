@@ -62,13 +62,13 @@ pub struct MdStatus {
 /// ```
 pub fn send_pwm(
     handle: &impl HandleTrait,
-    address: u8,
+    address: i16,
     power: i16,
 ) {
     let send_buf: [u8; 10] = [
         ((address >> 8) & 0xFF) as u8,
         (address & 0xFF) as u8,
-        address,
+        address as u8,
         device_type::MASTER,
         mode::PWM,
         0,
