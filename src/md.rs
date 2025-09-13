@@ -65,7 +65,9 @@ pub fn send_pwm(
     address: u8,
     power: i16,
 ) {
-    let send_buf: [u8; 8] = [
+    let send_buf: [u8; 10] = [
+        ((address >> 8) & 0xFF) as u8,
+        (address & 0xFF) as u8,
         address,
         device_type::MASTER,
         mode::PWM,
@@ -74,8 +76,9 @@ pub fn send_pwm(
         (power & 0xff) as u8,
         0,
         0,
-    ];
-    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
+    ]; 
+
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000)); 
 }
 
 /// Sends a command to set the rotation speed on the specified MD device.
