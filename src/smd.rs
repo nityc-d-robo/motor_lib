@@ -48,8 +48,10 @@ pub fn send_angle(
     port: u8,
     angle: i16,
 ) -> Result<SmdStatus, crate::Error> {
-    let send_buf: [u8; 8] = [
-        address | device_type::SMD,
+    let send_buf: [u8; 10] = [
+        ((address >> 8) & 0xFF) as u8,
+        (address & 0xFF) as u8,
+        angle as u8,
         device_type::MASTER,
         mode::ANGLE,
         port,
