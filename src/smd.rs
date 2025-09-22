@@ -42,12 +42,7 @@ pub struct SmdStatus {
 ///     Ok(())
 /// }
 /// ```
-pub fn send_angle(
-    handle: &impl HandleTrait,
-    address: u8,
-    port: u8,
-    angle: i16,
-) -> Result<SmdStatus, crate::Error> {
+pub fn send_angle(handle: &impl HandleTrait, address: u8, port: u8, angle: i16) {
     let send_buf: [u8; 8] = [
         address | device_type::SMD,
         device_type::MASTER,
@@ -58,8 +53,7 @@ pub fn send_angle(
         0,
         0,
     ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
 }
 
 /// Sends a command to set angles on the specified SMD device.
@@ -86,12 +80,7 @@ pub fn send_angle(
 ///     Ok(())
 /// }
 /// ```
-pub fn send_angles(
-    handle: &impl HandleTrait,
-    address: u8,
-    angle_0: i16,
-    angle_1: i16,
-) -> Result<SmdStatus, crate::Error> {
+pub fn send_angles(handle: &impl HandleTrait, address: u8, angle_0: i16, angle_1: i16) {
     let send_buf: [u8; 8] = [
         address | device_type::SMD,
         device_type::MASTER,
@@ -102,8 +91,7 @@ pub fn send_angles(
         ((angle_1 >> 8) & 0xff) as u8,
         (angle_1 & 0xff) as u8,
     ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
 }
 
 /// Receive a data from the specified SMD device.

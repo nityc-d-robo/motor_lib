@@ -51,12 +51,7 @@ pub struct SdStatus {
 ///     Ok(())
 /// }
 /// ```
-pub fn send_power(
-    handle: &impl HandleTrait,
-    address: u8,
-    port: u8,
-    power: i16,
-) -> Result<SdStatus, crate::Error> {
+pub fn send_power(handle: &impl HandleTrait, address: u8, port: u8, power: i16) {
     let power_abs = power.abs();
     let send_buf: [u8; 8] = [
         address | device_type::SD,
@@ -68,8 +63,7 @@ pub fn send_power(
         0,
         0,
     ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
 }
 
 /// Sends a command to set the solenoid state on the specified SD.
@@ -97,12 +91,7 @@ pub fn send_power(
 ///     Ok(())
 /// }
 /// ```
-pub fn send_powers(
-    handle: &impl HandleTrait,
-    address: u8,
-    power_0: i16,
-    power_1: i16,
-) -> Result<SdStatus, crate::Error> {
+pub fn send_powers(handle: &impl HandleTrait, address: u8, power_0: i16, power_1: i16) {
     let power0_abs = power_0.abs();
     let power1_abs = power_1.abs();
 
@@ -116,8 +105,7 @@ pub fn send_powers(
         ((power1_abs >> 8) & 0xff) as u8,
         (power1_abs & 0xff) as u8,
     ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
 }
 
 /// Receive a data from the specified SD device.
