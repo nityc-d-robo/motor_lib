@@ -90,7 +90,7 @@ pub fn send_angle(
 /// ```
 pub fn send_angles(
     handle: &impl HandleTrait,
-    address: u8,
+    address: i32,
     angle_0: i16,
     angle_1: i16,
 ) -> Result<SmdStatus, crate::Error> {
