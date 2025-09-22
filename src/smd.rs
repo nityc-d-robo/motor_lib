@@ -44,7 +44,7 @@ pub struct SmdStatus {
 /// ```
 pub fn send_angle(
     handle: &impl HandleTrait,
-    address: u8,
+    address: i32,
     port: u8,
     angle: i16,
 ) -> Result<SmdStatus, crate::Error> {
