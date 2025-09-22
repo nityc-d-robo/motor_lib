@@ -47,7 +47,7 @@ pub fn send_angle(
     address: i32,
     port: u8,
     angle: i16,
-) -> Result<SmdStatus, crate::Error> {
+) {
     let send_buf: [u8; 10] = [
         ((address >> 8) & 0xFF) as u8,
         (address & 0xFF) as u8,
@@ -60,52 +60,7 @@ pub fn send_angle(
         0,
         0,
     ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
-}
-
-/// Sends a command to set angles on the specified SMD device.
-///
-/// # Arguments
-///
-/// * `handle` - A reference to an object implementing the USBHandleTrait.
-/// * `address` - The address of the SMD device.
-/// * `angle_0` - The angle to set for port 0.
-/// * `angle_1` - The angle to set for port 1.
-///
-/// # Returns
-///
-/// A result containing the status of the SMD device or a Error.
-///
-/// # Example
-///
-/// Sample code to set angles of motors connected to the SMD at address 0x20, port 0 to 30 degrees and port 1 to 60 degrees.
-/// ```rust
-/// use motor_lib::{USBHandle, Error, smd};
-/// fn main() -> Result<(), Error> {
-///     let handle = USBHandle::new(0x483, 0x5740, 1);
-///     smd::send_angles(&handle, 0x20, 30, 60)?;
-///     Ok(())
-/// }
-/// ```
-pub fn send_angles(
-    handle: &impl HandleTrait,
-    address: i32,
-    angle_0: i16,
-    angle_1: i16,
-) -> Result<SmdStatus, crate::Error> {
-    let send_buf: [u8; 8] = [
-        address | device_type::SMD,
-        device_type::MASTER,
-        mode::ANGLES,
-        0,
-        ((angle_0 >> 8) & 0xff) as u8,
-        (angle_0 & 0xff) as u8,
-        ((angle_1 >> 8) & 0xff) as u8,
-        (angle_1 & 0xff) as u8,
-    ];
-    handle.write_bulk(&send_buf, Duration::from_millis(5000))?;
-    return receive_status(handle, address);
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
 }
 
 /// Receive a data from the specified SMD device.
