@@ -47,7 +47,7 @@ pub fn send_angle(
     address: i32,
     port: u8,
     angle: i16,
-) -> Result<SmdStatus, crate::Error> {
+) {
     let send_buf: [u8; 10] = [
         ((address >> 8) & 0xFF) as u8,
         (address & 0xFF) as u8,

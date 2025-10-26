@@ -196,7 +196,9 @@ pub fn send_limsw(
     power: i16,
     after_power: i16,
 ) {
-    let send_buf: [u8; 8] = [
+    let send_buf: [u8; 10] = [
+        ((address >> 8) & 0xFF) as u8,
+        (address & 0xFF) as u8,
         address,
         device_type::MASTER,
         mode::LIM_SW,
