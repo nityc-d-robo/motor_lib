@@ -191,7 +191,7 @@ pub fn send_angle(
 /// ```
 pub fn send_limsw(
     handle: &impl HandleTrait,
-    address: u8,
+    address: u16,
     port: u8,
     power: i16,
     after_power: i16,
@@ -199,7 +199,7 @@ pub fn send_limsw(
     let send_buf: [u8; 10] = [
         ((address >> 8) & 0xFF) as u8,
         (address & 0xFF) as u8,
-        address,
+        address as u8,
         device_type::MASTER,
         mode::LIM_SW,
         port,
