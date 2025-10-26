@@ -51,7 +51,7 @@ pub fn send_angle(
     let send_buf: [u8; 10] = [
         ((address >> 8) & 0xFF) as u8,
         (address & 0xFF) as u8,
-        address | device_type::SMD,
+        0,
         device_type::MASTER,
         mode::ANGLE,
         port,
