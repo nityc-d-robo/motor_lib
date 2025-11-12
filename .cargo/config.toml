@@ -1,0 +1,26 @@
+# Cargo configuration file
+# This file allows configuring build settings for the project
+
+# To build usb_can_server for a specific target architecture, use:
+# cargo build --bin usb_can_server --target <target-triple>
+#
+# Examples:
+# - For ARM64: cargo build --bin usb_can_server --target aarch64-unknown-linux-gnu
+# - For ARM32: cargo build --bin usb_can_server --target armv7-unknown-linux-gnueabihf
+# - For Windows: cargo build --bin usb_can_server --target x86_64-pc-windows-gnu
+#
+# You can also set a default target for all builds (uncomment and modify as needed):
+# [build]
+# target = "aarch64-unknown-linux-gnu"
+
+# Example: Linker configuration for cross-compilation
+# Uncomment and modify the sections below based on your target architecture
+
+# [target.aarch64-unknown-linux-gnu]
+# linker = "aarch64-linux-gnu-gcc"
+
+# [target.armv7-unknown-linux-gnueabihf]
+# linker = "arm-linux-gnueabihf-gcc"
+
+# Environment-specific settings can be added here
+# For more information, see: https://doc.rust-lang.org/cargo/reference/config.html
