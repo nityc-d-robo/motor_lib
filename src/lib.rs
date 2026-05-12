@@ -12,11 +12,14 @@ pub use implements::grpc;
 pub use implements::grpc::GrpcHandle;
 pub use implements::usb;
 pub use implements::usb::USBHandle;
+pub use implements::socketcan;
+pub use implements::socketcan::SocketCANHandle;
 
 #[derive(Debug)]
 pub enum Error {
     RUsbError(rusb::Error),
     GrpcError(tonic::Status),
+    SocketCANError(::socketcan::Error),
 }
 
 impl fmt::Display for crate::Error {
@@ -24,6 +27,7 @@ impl fmt::Display for crate::Error {
         match self {
             crate::Error::RUsbError(e) => write!(f, "RUsbError: {}", e),
             crate::Error::GrpcError(e) => write!(f, "gRPCError: {}", e),
+            crate::Error::SocketCANError(e) => write!(f, "SocketCANError: {}", e),
         }
     }
 }
@@ -66,4 +70,18 @@ pub fn send_emergency(handle: &impl HandleTrait) -> Result<usize, Error> {
         0,
     ];
     handle.write_bulk(&send_buf, Duration::from_millis(5000))
+}
+
+pub fn auto_detect() -> Result<Box<dyn HandleTrait>, Error> {
+    if rusb::open_device_with_vid_pid(0x483, 0x5740).is_some() {
+        Ok(Box::new(USBHandle::new(0x483, 0x5740, 1)))
+    } else if std::path::Path::new("/sys/class/net/can0").exists() {
+        std::process::Command::new("ip")
+            .args(["link", "set", "can0", "up"])
+            .status()
+            .unwrap();
+        Ok(Box::new(SocketCANHandle::new("can0")?))
+    } else {
+        Err(Error::RUsbError(rusb::Error::NoDevice))
+    }
 }
