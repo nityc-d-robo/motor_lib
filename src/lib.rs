@@ -77,7 +77,7 @@ pub fn auto_detect() -> Result<Box<dyn HandleTrait>, Error> {
         Ok(Box::new(USBHandle::new(0x483, 0x5740, 1)))
     } else if std::path::Path::new("/sys/class/net/can0").exists() {
         std::process::Command::new("ip")
-            .args(["link", "set", "can0", "up"])
+            .args(["link", "set", "can0", "up", "type", "can", "bitrate", "1000000"])
             .status()
             .unwrap();
         Ok(Box::new(SocketCANHandle::new("can0")?))
