@@ -103,7 +103,7 @@ pub fn send_pwm(
 /// }
 /// ```
 pub fn send_speed(
-    handle: &impl HandleTrait,
+    handle: &dyn HandleTrait,
     address: u8,
     velocity: i16,
 ) {
@@ -144,7 +144,7 @@ pub fn send_speed(
 /// }
 /// ```
 pub fn send_angle(
-    handle: &impl HandleTrait,
+    handle: &dyn HandleTrait,
     address: u8,
     angle: i16,
 ) {
@@ -187,7 +187,7 @@ pub fn send_angle(
 /// }
 /// ```
 pub fn send_limsw(
-    handle: &impl HandleTrait,
+    handle: &dyn HandleTrait,
     address: u8,
     port: u8,
     power: i16,
@@ -233,7 +233,7 @@ pub fn send_limsw(
 ///     Ok(())
 /// }
 /// ```
-pub fn receive_status(handle: &impl HandleTrait, address: u8) -> Result<MdStatus, crate::Error> {
+pub fn receive_status(handle: &dyn HandleTrait, address: u8) -> Result<MdStatus, crate::Error> {
     let mut receive_buf = [0; 8];
     loop {
         handle.read_bulk(&mut receive_buf, Duration::from_millis(5000))?;
