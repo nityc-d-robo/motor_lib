@@ -33,7 +33,7 @@ impl HandleTrait for SocketCANHandle {
 
     fn write_bulk(&self, data: &[u8], _timeout: time::Duration) -> Result<usize, crate::Error> {
         let id = StandardId::new(data[0] as u16).unwrap();
-        let frame = CanFrame::new(id, data).unwrap();
+        let frame = CanFrame::new(id, &data[1..]).unwrap();
         self.socket.write_frame(&frame)
             .map_err(crate::Error::from)?;
         Ok(data.len())
