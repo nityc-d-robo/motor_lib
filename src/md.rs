@@ -61,7 +61,7 @@ pub struct MdStatus {
 /// }
 /// ```
 pub fn send_pwm(
-    handle: &impl HandleTrait,
+    handle: &dyn HandleTrait,
     address: u8,
     power: i16,
 ) {
