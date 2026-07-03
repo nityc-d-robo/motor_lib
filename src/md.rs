@@ -60,13 +60,11 @@ pub struct MdStatus {
 ///    println!("{:?}", return_status);
 /// }
 /// ```
-pub fn send_pwm(
-    handle: &impl HandleTrait,
-    address: u8,
-    power: i16,
-) {
-    let send_buf: [u8; 8] = [
-        address,
+pub fn send_pwm(handle: &impl HandleTrait, address: u8, power: i16) {
+    let send_buf: [u8; 10] = [
+        ((address >> 8) & 0xff) as u8,
+        (address & 0xff) as u8,
+        0,
         device_type::MASTER,
         mode::PWM,
         0,
@@ -102,13 +100,11 @@ pub fn send_pwm(
 ///     Ok(())
 /// }
 /// ```
-pub fn send_speed(
-    handle: &impl HandleTrait,
-    address: u8,
-    velocity: i16,
-) {
-    let send_buf: [u8; 8] = [
-        address,
+pub fn send_speed(handle: &impl HandleTrait, address: u8, velocity: i16) {
+    let send_buf: [u8; 10] = [
+        ((address << 8) & 0xff) as u8,
+        (address & 0xff) as u8,
+        0,
         device_type::MASTER,
         mode::SPEED,
         0,
@@ -143,11 +139,7 @@ pub fn send_speed(
 ///     Ok(())
 /// }
 /// ```
-pub fn send_angle(
-    handle: &impl HandleTrait,
-    address: u8,
-    angle: i16,
-) {
+pub fn send_angle(handle: &impl HandleTrait, address: u8, angle: i16) {
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
@@ -186,13 +178,7 @@ pub fn send_angle(
 ///     Ok(())
 /// }
 /// ```
-pub fn send_limsw(
-    handle: &impl HandleTrait,
-    address: u8,
-    port: u8,
-    power: i16,
-    after_power: i16,
-) {
+pub fn send_limsw(handle: &impl HandleTrait, address: u8, port: u8, power: i16, after_power: i16) {
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
