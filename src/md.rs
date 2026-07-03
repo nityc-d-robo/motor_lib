@@ -64,7 +64,7 @@ pub fn send_pwm(handle: &impl HandleTrait, address: u8, power: i16) {
     let send_buf: [u8; 10] = [
         ((address >> 8) & 0xff) as u8,
         (address & 0xff) as u8,
-        0,
+        address,
         device_type::MASTER,
         mode::PWM,
         0,
@@ -104,7 +104,7 @@ pub fn send_speed(handle: &impl HandleTrait, address: u8, velocity: i16) {
     let send_buf: [u8; 10] = [
         ((address << 8) & 0xff) as u8,
         (address & 0xff) as u8,
-        0,
+        address,
         device_type::MASTER,
         mode::SPEED,
         0,
