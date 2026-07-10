@@ -14,6 +14,10 @@ pub use implements::usb;
 pub use implements::usb::USBHandle;
 pub use implements::socketcan;
 pub use implements::socketcan::SocketCANHandle;
+pub mod controller;
+pub use controller::Joy;
+pub use controller::{Gamepad, Button, Axes};
+pub use controller::{DualShock4Layout, DualSenseLayout};
 
 #[derive(Debug)]
 pub enum Error {
