@@ -3,6 +3,7 @@
 use std::time::Duration;
 
 use crate::{device_type, HandleTrait};
+use half::f16;
 
 pub mod mode {
     pub const INIT: u8 = 0;
@@ -26,6 +27,14 @@ pub struct MdStatus {
     pub angle: i16,
     pub speed: i16,
     pub limsw: LimSwStatus,
+}
+
+#[derive(Debug)]
+pub struct MdRpms {
+    pub speed1: i16,
+    pub speed2: i16,
+    pub speed3: i16,
+    pub speed4: i16,
 }
 
 /// Sends a command to set the PWM duty cycle on the specified MD device.
@@ -70,6 +79,40 @@ pub fn send_pwm(handle: &impl HandleTrait, address: i16, power: i16) {
         0,
         ((power >> 8) & 0xff) as u8,
         (power & 0xff) as u8,
+        0,
+        0,
+    ];
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
+}
+
+pub fn send_init(handle: &impl HandleTrait, motor_type: u8, mode: u8, address: i16) {
+    let send_buf: [u8; 11] = [
+        ((address >> 8) & 0xff) as u8,
+        (address & 0xff) as u8,
+        4,
+        0,
+        motor_type,
+        mode,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ];
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
+}
+
+pub fn send_value(handle: &impl HandleTrait, address: i16, value: i16) {
+    let send_buf: [u8; 11] = [
+        ((address >> 8) & 0xff) as u8,
+        (address & 0xff) as u8,
+        3,
+        1,
+        ((value >> 8) & 0xff) as u8,
+        (value & 0xff) as u8,
+        0,
+        0,
+        0,
         0,
         0,
     ];
@@ -139,15 +182,37 @@ pub fn send_speed(handle: &impl HandleTrait, address: i16, velocity: i16) {
 ///     Ok(())
 /// }
 /// ```
-pub fn send_angle(handle: &impl HandleTrait, address: u8, angle: i16) {
-    let send_buf: [u8; 8] = [
-        address,
-        device_type::MASTER,
-        mode::ANGLE,
+pub fn send_angle(handle: &impl HandleTrait, address: i16, value: f32) {
+    let angle = f16::from_f32(value);
+    let angle_bits_u: u16 = angle.to_bits();
+    let send_buf: [u8; 11] = [
+        ((address >> 8) & 0xff) as u8,
+        (address & 0xff) as u8,
+        3,
+        1,
+        ((angle_bits_u >> 8) & 0xff) as u8,
+        (angle_bits_u & 0xff) as u8,
         0,
-        ((angle >> 8) & 0xff) as u8,
-        (angle & 0xff) as u8,
         0,
+        0,
+        0,
+        0,
+    ];
+    let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
+}
+
+pub fn send_gain(handle: &impl HandleTrait, address: i16, Kp: u16, Ki: u16, Kd: u16) {
+    let send_buf: [u8; 11] = [
+        ((address >> 8) & 0xff) as u8,
+        (address & 0xff) as u8,
+        7,
+        2,
+        ((Kp >> 8) & 0xff) as u8,
+        (Kp & 0xff) as u8,
+        ((Ki >> 8) & 0xff) as u8,
+        (Ki & 0xff) as u8,
+        ((Kd >> 8) & 0xff) as u8,
+        (Kd & 0xff) as u8,
         0,
     ];
     let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
@@ -236,5 +301,22 @@ pub fn receive_status(handle: &impl HandleTrait, address: u8) -> Result<MdStatus
                 },
             });
         }
+    }
+}
+
+pub fn receive_rpms(handle: &impl HandleTrait) -> Result<MdRpms, crate::Error> {
+    let mut receive_buf = [0; 8];
+    loop {
+        handle.read_bulk(&mut receive_buf, Duration::from_millis(5000))?;
+        let rpm1 = (receive_buf[0] as i16) << 8 | (receive_buf[1] as i16);
+        let rpm2 = (receive_buf[2] as i16) << 8 | (receive_buf[3] as i16);
+        let rpm3 = (receive_buf[4] as i16) << 8 | (receive_buf[5] as i16);
+        let rpm4 = (receive_buf[6] as i16) << 8 | (receive_buf[7] as i16);
+        return Ok(MdRpms {
+            speed1: rpm1,
+            speed2: rpm2,
+            speed3: rpm3,
+            speed4: rpm4,
+        });
     }
 }
