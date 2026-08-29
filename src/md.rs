@@ -6,12 +6,11 @@ use crate::{device_type, HandleTrait};
 use half::f16;
 
 pub mod mode {
-    pub const INIT: u8 = 0;
-    pub const STATUS: u8 = 1;
-    pub const PWM: u8 = 2;
+    pub const NONE: u8 = 0;
+    pub const PWM: u8 = 1;
+    pub const CURRENT: u8 = 2;
     pub const SPEED: u8 = 3;
     pub const ANGLE: u8 = 4;
-    pub const LIM_SW: u8 = 5;
 }
 
 #[derive(Debug)]
@@ -243,7 +242,7 @@ pub fn send_gain(handle: &impl HandleTrait, address: i16, Kp: u16, Ki: u16, Kd: 
 ///     Ok(())
 /// }
 /// ```
-pub fn send_limsw(handle: &impl HandleTrait, address: u8, port: u8, power: i16, after_power: i16) {
+/*pub fn send_limsw(handle: &impl HandleTrait, address: u8, port: u8, power: i16, after_power: i16) {
     let send_buf: [u8; 8] = [
         address,
         device_type::MASTER,
@@ -255,7 +254,7 @@ pub fn send_limsw(handle: &impl HandleTrait, address: u8, port: u8, power: i16, 
         (after_power & 0xff) as u8,
     ];
     let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
-}
+}*/
 
 /// Receive a data from the specified MD device.
 ///
