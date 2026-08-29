@@ -142,7 +142,7 @@ pub fn send_value(handle: &impl HandleTrait, address: i16, value: i16) {
 ///     Ok(())
 /// }
 /// ```
-pub fn send_speed(handle: &impl HandleTrait, address: i16, velocity: i16) {
+/*pub fn send_speed(handle: &impl HandleTrait, address: i16, velocity: i16) {
     let send_buf: [u8; 10] = [
         ((address >> 8) & 0xff) as u8,
         (address & 0xff) as u8,
@@ -156,7 +156,7 @@ pub fn send_speed(handle: &impl HandleTrait, address: i16, velocity: i16) {
         0,
     ];
     let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
-}
+} */
 
 /// Sends a command to set the angle on the specified MD device.
 ///
@@ -181,7 +181,7 @@ pub fn send_speed(handle: &impl HandleTrait, address: i16, velocity: i16) {
 ///     Ok(())
 /// }
 /// ```
-pub fn send_angle(handle: &impl HandleTrait, address: i16, value: f32) {
+/*pub fn send_angle(handle: &impl HandleTrait, address: i16, value: f32) {
     let angle = f16::from_f32(value);
     let angle_bits_u: u16 = angle.to_bits();
     let send_buf: [u8; 11] = [
@@ -198,7 +198,7 @@ pub fn send_angle(handle: &impl HandleTrait, address: i16, value: f32) {
         0,
     ];
     let _ = handle.write_bulk(&send_buf, Duration::from_millis(5000));
-}
+} */
 
 pub fn send_gain(handle: &impl HandleTrait, address: i16, Kp: u16, Ki: u16, Kd: u16) {
     let send_buf: [u8; 11] = [
